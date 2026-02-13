@@ -1,258 +1,444 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Will You Be My Valentine, Rezu? 💌</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #ffebee, #fce4ec, #f8bbd0);
-            color: #333;
-            font-family: 'Playfair Display', serif;
-            overflow-x: hidden;
-            position: relative;
-        }
-        #proposal, #loveletter {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 20px 20px 100px;
-            transition: opacity 1.2s ease;
-        }
-        #loveletter {
-            opacity: 0;
-            pointer-events: none;
-            overflow-y: auto;
-        }
-        h1 {
-            font-family: 'Dancing Script', cursive;
-            font-size: 4.5rem;
-            color: #c2185b;
-            text-shadow: 3px 3px 12px rgba(0,0,0,0.25);
-            margin: 30px 0 20px;
-            text-align: center;
-        }
-        .heart-frame {
-            width: 380px;
-            height: 380px;
-            background: url('https://files.catbox.moe/wjnomr.jpg') no-repeat center/cover;
-            clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 50% 75%, 18% 100%, 0% 38%);
-            margin: 40px 0 30px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-            animation: float 7s ease-in-out infinite; /* Gentle up-down only */
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-        .buttons {
-            display: flex;
-            gap: 60px;
-            z-index: 10;
-            margin-top: 30px;
-        }
-        button {
-            padding: 22px 80px;
-            font-size: 2rem;
-            border: none;
-            border-radius: 80px;
-            cursor: pointer;
-            transition: all 0.4s;
-            font-weight: bold;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.3);
-        }
-        #yesBtn { background: linear-gradient(45deg, #e91e63, #f06292); color: white; }
-        #noBtn { background: #e0e0e0; color: #424242; position: relative; }
-        .letter-container {
-            max-width: 1000px;
-            background: rgba(255,255,255,0.98);
-            padding: 60px 50px;
-            border-radius: 40px;
-            box-shadow: 0 25px 70px rgba(0,0,0,0.4);
-            text-align: center;
-            line-height: 2.2;
-            font-size: 1.5rem;
-            color: #3e2723;
-            margin-bottom: 40px;
-        }
-        .letter-container h1 { font-size: 5.5rem; margin-bottom: 50px; color: #ad1457; }
-        .letter-container p { margin: 30px 0; font-style: italic; color: #4e342e; }
-        .letter-container .highlight {
-            font-weight: bold;
-            color: #c2185b;
-            font-size: 1.9rem;
-            display: block;
-            margin: 45px 0;
-        }
-        .photos {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 70px;
-        }
-        .photos img {
-            width: 180px;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            transition: transform 0.4s ease;
-        }
-        .photos img:hover { transform: scale(1.12); }
-        .particle {
-            position: absolute;
-            animation: fall linear infinite;
-            user-select: none;
-            pointer-events: none;
-        }
-        .heart { font-size: 2.4rem; }
-        .thunder { font-size: 2.8rem; animation: fall 4s linear infinite, flash 0.5s infinite alternate; }
-        @keyframes fall { 0% { transform: translateY(-150%) rotate(0deg); opacity: 0.9; } 100% { transform: translateY(150vh) rotate(720deg); opacity: 0; } }
-        @keyframes flash { 0% { opacity: 0.9; text-shadow: 0 0 15px #ffd700; } 100% { opacity: 1; text-shadow: 0 0 25px #ffff00; } }
-        @media (max-width: 600px) {
-            h1 { font-size: 3.5rem; }
-            .heart-frame { width: 280px; height: 280px; }
-            button { padding: 18px 60px; font-size: 1.6rem; }
-            .letter-container { padding: 50px 30px; font-size: 1.3rem; }
-            .photos img { width: 140px; height: 140px; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hami Nepal Esports • Nepal's #1 Free Fire Community</title>
+  
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- AOS CDN for animations -->
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  
+  <!-- GSAP CDN (optional but used for some smooth effects) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  
+  <style>
+    :root {
+      --navy: #0a0f1f;
+      --deep-black: #000814;
+      --cyan: #00f5ff;
+      --purple: #c026d3;
+      --blue: #3b82f6;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--deep-black);
+      color: #e0e0ff;
+      overflow-x: hidden;
+    }
+    
+    .title-font {
+      font-family: 'Orbitron', sans-serif;
+    }
+    
+    .neon-cyan {
+      text-shadow: 0 0 10px var(--cyan), 0 0 20px var(--cyan), 0 0 40px var(--purple);
+    }
+    
+    .neon-purple {
+      text-shadow: 0 0 10px var(--purple), 0 0 20px var(--purple), 0 0 40px var(--cyan);
+    }
+    
+    .glass {
+      background: rgba(10, 15, 31, 0.65);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 245, 255, 0.18);
+      box-shadow: 0 8px 32px rgba(0, 245, 255, 0.12);
+    }
+    
+    .hero-bg {
+      background: radial-gradient(circle at 20% 30%, rgba(0,245,255,0.18) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 70%, rgba(192,38,211,0.16) 0%, transparent 50%);
+      animation: bgShift 30s ease infinite;
+    }
+    
+    @keyframes bgShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .particle {
+      position: absolute;
+      background: var(--cyan);
+      border-radius: 50%;
+      box-shadow: 0 0 15px var(--cyan);
+      pointer-events: none;
+      animation: float linear infinite;
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0) translateX(0); opacity: 0.7; }
+      100% { transform: translateY(-120vh) translateX(60vw); opacity: 0; }
+    }
+    
+    .protected { display: none; }
+    .logged-in .protected { display: block; }
+    .logged-in .guest-only { display: none; }
+    
+    .btn-glow {
+      transition: all 0.4s;
+      box-shadow: 0 0 25px rgba(0,245,255,0.5);
+    }
+    .btn-glow:hover {
+      box-shadow: 0 0 45px rgba(0,245,255,0.8);
+      transform: translateY(-3px);
+    }
+    
+    .card-hover {
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .card-hover:hover {
+      transform: translateY(-12px) scale(1.04);
+      box-shadow: 0 0 60px -15px var(--cyan);
+    }
+  </style>
 </head>
-<body>
+<body class="antialiased">
 
-    <!-- Proposal Section -->
-    <div id="proposal">
-        <div class="heart-frame"></div>
-        <h1>Will you be my valentine miss rezu 🥺🫂</h1>
-        <div class="buttons">
-            <button id="yesBtn">Yes 🥰</button>
-            <button id="noBtn">No 😔</button>
-        </div>
+  <!-- LOADER -->
+  <div id="loader" class="fixed inset-0 bg-black z-[9999] flex items-center justify-center">
+    <div class="text-center">
+      <h1 class="title-font text-6xl md:text-8xl font-black neon-cyan tracking-widest animate-pulse">HAMI NEPAL</h1>
+      <p class="mt-4 text-cyan-400 text-xl">Nepal's #1 Free Fire Community</p>
     </div>
+  </div>
 
-    <!-- Love Letter Section (scrollable) -->
-    <div id="loveletter">
-        <div class="letter-container">
-            <div class="heart-frame" style="width:450px; height:450px; margin-bottom:60px;"></div>
-            
-            <h1>My Dearest Rezu ❤️</h1>
-            
-            <p>Before I knew you, my life was black and white — a quiet, muted existence where days felt the same, without that special glow that makes everything feel meaningful. Happiness was there, but it was soft, distant, like a memory from someone else's life.</p>
-            
-            <p>Then you came into my thoughts, and suddenly everything bloomed with color. Your words, your smile in photos, your presence even from afar — they brought bright hues to every moment. Life feels richer, warmer, happier because of the light you bring, even from a distance.</p>
-            
-            <span class="highlight">You turned my world colorful and happier in ways I never expected.</span>
-            
-            <p>Every message from you feels like a burst of sunshine. Your kindness shines through every word, your thoughts inspire me, and the way you express yourself makes my heart flutter in ways I never knew possible. You make me dream bigger, feel deeper, and smile more than I ever did before.</p>
-            
-            <p>I find myself thinking of you constantly — the little things you share, the way you see the world, the beauty in your soul that comes through even in simple moments. You've become the highlight of my days, the reason I look forward to tomorrow, the quiet joy that lingers even when things are hard.</p>
-            
-            <span class="highlight">My heart sees only you in every shade of color now.</span>
-            
-            <p>You've shown me that love can start with a feeling, with admiration from a distance, with the hope of what could be. I cherish every second I get to know you more, every thought that connects us. You make the ordinary feel special, the distant feel close, and the future feel bright.</p>
-            
-            <p>I promise to keep holding you in my heart, to send you all the care and warmth I can, to dream of the day when this color becomes even closer and more real. Until then, know that you are the light in my every moment.</p>
-            
-            <p>Thank you for making my world so much more beautiful and happy. You are everything to me — my dearest, my forever thought.</p>
-            
-                        <p>I Love You 🥺🌹.</p>
-            
-            <p class="signature">With all my love and endless dreams of you,<br>Manas ♡</p>
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 right-0 z-50 glass border-b border-cyan-900/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-xl flex items-center justify-center text-2xl font-black title-font shadow-lg">HN</div>
+          <span class="title-font text-2xl font-bold neon-cyan">HAMI NEPAL</span>
+        </div>
 
-            <!-- Small photos gallery -->
-            <div class="photos">
-                <img src="https://files.catbox.moe/k8861y.jpg" alt="Rezu photo 1">
-                <img src="https://files.catbox.moe/epez03.jpg" alt="Rezu photo 2">
-                <img src="https://files.catbox.moe/ff3p4q.jpg" alt="Rezu photo 3">
-                <img src="https://files.catbox.moe/ulzb30.jpg" alt="Rezu photo 4">
-                <img src="https://files.catbox.moe/1sf8y9.jpg" alt="Rezu photo 5">
-                <img src="https://files.catbox.moe/grisx0.jpg" alt="Rezu photo 6">
-                <img src="https://files.catbox.moe/ky3cv6.jpg" alt="Rezu photo 7">
-                <img src="https://files.catbox.moe/2kecy0.jpg" alt="Rezu photo 8">
-                <img src="https://files.catbox.moe/zevn8u.jpg" alt="Rezu photo 9">
-                <img src="https://files.catbox.moe/25bwz6.jpg" alt="Rezu photo 10">
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#home" class="hover:text-cyan-400 transition">Home</a>
+          <a href="#officers" class="hover:text-cyan-400 transition">Officers</a>
+          <a href="#registration" class="text-cyan-400 font-semibold hover:text-cyan-300 transition guest-only">Guild Trial</a>
+          <a href="#records" class="text-cyan-400 font-semibold hover:text-cyan-300 transition protected">Match Records</a>
+          <a href="#highlights" class="text-cyan-400 font-semibold hover:text-cyan-300 transition protected">Highlights</a>
+          <a href="#merch" class="text-cyan-400 font-semibold hover:text-cyan-300 transition protected">Merch</a>
+          <a href="#versus" class="text-cyan-400 font-semibold hover:text-cyan-300 transition protected">Guild Versus</a>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <button id="loginBtn" class="px-6 py-2.5 glass border border-cyan-500/50 rounded-full text-cyan-300 hover:bg-cyan-900/30 transition guest-only">
+            Login
+          </button>
+          <button id="adminBtn" class="px-5 py-2 glass border border-purple-500/50 rounded-full text-purple-300 text-sm hover:bg-purple-900/30 transition guest-only">
+            Admin
+          </button>
+          <div id="userMenu" class="relative hidden logged-in">
+            <button id="userBtn" class="flex items-center gap-2 glass px-4 py-2 rounded-full">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500"></div>
+              <span id="usernameDisplay" class="text-sm"></span>
+            </button>
+            <div id="dropdown" class="absolute right-0 mt-3 w-48 glass rounded-xl shadow-2xl hidden">
+              <button id="logoutBtn" class="block w-full text-left px-5 py-3 hover:bg-cyan-900/30 rounded-xl">Logout</button>
+              <button id="adminDashboardBtn" class="block w-full text-left px-5 py-3 hover:bg-purple-900/30 rounded-xl text-purple-300">Admin Dashboard</button>
             </div>
+          </div>
+          <button id="mobileMenuBtn" class="md:hidden text-3xl text-cyan-400">☰</button>
         </div>
+      </div>
     </div>
+  </nav>
 
-    <!-- Hidden MP3 Players -->
-    <audio id="song1" preload="auto">
-        <source src="https://files.catbox.moe/67wg6g.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+  <!-- MOBILE MENU -->
+  <div id="mobileMenu" class="fixed inset-0 bg-black/95 z-40 hidden flex flex-col pt-24 px-6">
+    <button id="closeMobile" class="self-end text-4xl mb-10">&times;</button>
+    <div class="flex flex-col gap-8 text-2xl text-center">
+      <a href="#home" class="hover:text-cyan-400">Home</a>
+      <a href="#officers" class="hover:text-cyan-400">Officers</a>
+      <a href="#registration" class="text-cyan-400 guest-only">Guild Trial</a>
+      <a href="#records" class="text-cyan-400 protected">Match Records</a>
+      <a href="#highlights" class="text-cyan-400 protected">Highlights</a>
+      <a href="#merch" class="text-cyan-400 protected">Merch</a>
+      <a href="#versus" class="text-cyan-400 protected">Guild Versus</a>
+    </div>
+  </div>
 
-    <audio id="song2" preload="auto">
-        <source src="https://files.catbox.moe/vioodp.mp3" type="audio/mpeg">
-        Your browser does not support the audio element.
-    </audio>
+  <!-- HERO -->
+  <section id="home" class="min-h-screen hero-bg relative flex items-center pt-20">
+    <div id="particles" class="absolute inset-0 pointer-events-none"></div>
+    
+    <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
+      <h1 data-aos="fade-up" class="title-font text-6xl md:text-8xl font-black neon-cyan mb-6 tracking-tight">
+        HAMI NEPAL ESPORTS
+      </h1>
+      <p data-aos="fade-up" data-aos-delay="200" class="text-2xl md:text-4xl text-cyan-300 mb-12">
+        Nepal's Premier Free Fire Community
+      </p>
+      
+      <div class="flex flex-wrap justify-center gap-6">
+        <a href="#registration" class="px-10 py-5 bg-gradient-to-r from-cyan-600 to-purple-600 rounded-2xl text-xl font-bold btn-glow guest-only">
+          Guild Trial Registration
+        </a>
+        <a href="#records" class="px-10 py-5 border-2 border-cyan-500 rounded-2xl text-xl font-bold btn-glow protected">
+          View Match Records
+        </a>
+        <a href="#highlights" class="px-10 py-5 border-2 border-purple-500 rounded-2xl text-xl font-bold btn-glow protected">
+          Watch Highlights
+        </a>
+      </div>
+    </div>
+  </section>
 
-    <script>
-        // No button dodges
-        const noBtn = document.getElementById('noBtn');
-        noBtn.addEventListener('mouseover', dodge);
-        noBtn.addEventListener('click', dodge);
+  <!-- OFFICER CONTACTS (PUBLIC) -->
+  <section id="officers" class="py-24">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 data-aos="fade-up" class="title-font text-5xl md:text-6xl font-black text-center neon-purple mb-16">Our Officers</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
+        <!-- Example officers -->
+        <div data-aos="zoom-in" class="glass rounded-3xl p-8 text-center card-hover">
+          <div class="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-cyan-500 mb-6">
+            <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400" alt="President" class="w-full h-full object-cover">
+          </div>
+          <h3 class="text-2xl font-bold mb-2">Rajan Thapa</h3>
+          <p class="text-cyan-400 mb-4">President</p>
+          <div class="flex justify-center gap-6 text-3xl">
+            <a href="#" class="hover:text-cyan-400">Discord</a>
+            <a href="#" class="hover:text-purple-400">IG</a>
+          </div>
+        </div>
+        
+        <!-- Add 3-4 more similar cards with different names/roles -->
+        <div data-aos="zoom-in" data-aos-delay="100" class="glass rounded-3xl p-8 text-center card-hover">
+          <div class="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-purple-500 mb-6">
+            <img src="https://images.unsplash.com/photo-1552058544-f2b08422138a?w=400" alt="Vice-President" class="w-full h-full object-cover">
+          </div>
+          <h3 class="text-2xl font-bold mb-2">Sujan Gurung</h3>
+          <p class="text-purple-400 mb-4">Vice-President</p>
+          <div class="flex justify-center gap-6 text-3xl">
+            <a href="#" class="hover:text-cyan-400">Discord</a>
+            <a href="#" class="hover:text-purple-400">IG</a>
+          </div>
+        </div>
+        
+        <!-- ... repeat for Coach, Captain, Manager ... -->
+      </div>
+    </div>
+  </section>
 
-        function dodge() {
-            noBtn.style.position = 'absolute';
-            noBtn.style.left = Math.random() * (window.innerWidth - 300) + 'px';
-            noBtn.style.top = Math.random() * (window.innerHeight - 250) + 'px';
-        }
+  <!-- GUILD TRIAL REGISTRATION (PROTECTED) -->
+  <section id="registration" class="py-24 bg-gradient-to-b from-black to-[#0a0f1f]">
+    <div class="max-w-3xl mx-auto px-6">
+      <div class="guest-only text-center py-32">
+        <h2 class="text-4xl mb-8">Please Login to Access</h2>
+        <button id="loginFromProtected" class="px-12 py-6 bg-cyan-600 rounded-2xl text-2xl font-bold">Login / Register</button>
+      </div>
+      
+      <div class="protected">
+        <h2 data-aos="fade-up" class="title-font text-5xl font-black text-center neon-cyan mb-12">Guild Trial Registration</h2>
+        <form id="trialForm" class="glass rounded-3xl p-10 space-y-6">
+          <input type="text" placeholder="Full Name" required class="w-full p-5 bg-black/40 border border-cyan-800 rounded-xl focus:border-cyan-400 outline-none">
+          <input type="text" placeholder="Free Fire UID" required class="w-full p-5 bg-black/40 border border-cyan-800 rounded-xl focus:border-cyan-400 outline-none">
+          <select class="w-full p-5 bg-black/40 border border-cyan-800 rounded-xl focus:border-cyan-400 outline-none">
+            <option>Preferred Role</option>
+            <option>IGL</option>
+            <option>Fragger</option>
+            <option>Sniper</option>
+            <option>Support</option>
+          </select>
+          <input type="number" placeholder="Experience (months)" class="w-full p-5 bg-black/40 border border-cyan-800 rounded-xl focus:border-cyan-400 outline-none">
+          <input type="text" placeholder="Discord Tag" required class="w-full p-5 bg-black/40 border border-cyan-800 rounded-xl focus:border-cyan-400 outline-none">
+          <button type="submit" class="w-full py-6 bg-gradient-to-r from-cyan-600 to-purple-600 rounded-2xl text-xl font-bold">Submit Application</button>
+        </form>
+      </div>
+    </div>
+  </section>
 
-        // Yes → show letter + play MP3s in endless sequence (1 → 2 → 1 → 2 ...)
-        document.getElementById('yesBtn').addEventListener('click', () => {
-            document.getElementById('proposal').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('proposal').style.display = 'none';
-                document.getElementById('loveletter').style.opacity = '1';
-                document.getElementById('loveletter').style.pointerEvents = 'auto';
+  <!-- MATCH RECORDS (PROTECTED) -->
+  <section id="records" class="py-24 protected">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 data-aos="fade-up" class="title-font text-5xl font-black text-center neon-purple mb-12">Match Records</h2>
+      <div class="glass rounded-3xl overflow-hidden">
+        <table class="w-full text-left">
+          <thead class="bg-cyan-900/30">
+            <tr>
+              <th class="p-6">Date</th>
+              <th class="p-6">Opponent</th>
+              <th class="p-6">Score</th>
+              <th class="p-6">Result</th>
+              <th class="p-6">MVP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-t border-cyan-900/30 hover:bg-cyan-900/20">
+              <td class="p-6">2026-02-10</td>
+              <td class="p-6">Guild Web</td>
+              <td class="p-6">15-8</td>
+              <td class="p-6 text-emerald-400 font-bold">WIN</td>
+              <td class="p-6">Rajan</td>
+            </tr>
+            <!-- Add more rows as needed -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
 
-                const song1 = document.getElementById('song1');
-                const song2 = document.getElementById('song2');
+  <!-- HIGHLIGHTS (PROTECTED) -->
+  <section id="highlights" class="py-24 protected">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 data-aos="fade-up" class="title-font text-5xl font-black text-center neon-cyan mb-12">Match Highlights</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Example embed -->
+        <div class="glass rounded-3xl overflow-hidden cursor-pointer card-hover" onclick="openLightbox('https://www.youtube.com/embed/H68jSoY8PJ0')">
+          <div class="aspect-video bg-black flex items-center justify-center">
+            <span class="text-6xl text-cyan-400">▶</span>
+          </div>
+          <p class="p-6 text-center">FFMAI 2025 BR Grand Finals</p>
+        </div>
+        <!-- More placeholders -->
+      </div>
+    </div>
+  </section>
 
-                // Start with song1
-                song1.currentTime = 0;
-                song1.volume = 0.5;
-                song1.play().catch(err => console.error("Song1 play error:", err));
+  <!-- MERCH (PROTECTED) -->
+  <section id="merch" class="py-24 protected">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 data-aos="fade-up" class="title-font text-5xl font-black text-center neon-purple mb-12">Official Merch</h2>
+      <div class="grid md:grid-cols-3 gap-10">
+        <div class="glass rounded-3xl p-8 text-center card-hover">
+          <img src="https://images.unsplash.com/photo-1622297840-6d0c9e0d4a8a?w=800" alt="Jersey" class="w-full h-80 object-contain mx-auto mb-6">
+          <h3 class="text-3xl font-bold mb-4">Hami Jersey</h3>
+          <button onclick="addToCart('Jersey')" class="w-full py-5 bg-cyan-600 rounded-xl font-bold">Register Interest</button>
+        </div>
+        <!-- Hoodie & Cap similar -->
+      </div>
+      <div id="cartMessage" class="fixed bottom-10 right-10 glass px-8 py-5 rounded-2xl hidden">
+        Added to Cart – Limited Stock!
+      </div>
+    </div>
+  </section>
 
-                // When song1 ends → play song2
-                song1.addEventListener('ended', playSong2);
+  <!-- GUILD VERSUS (PROTECTED) -->
+  <section id="versus" class="py-24 protected">
+    <div class="max-w-3xl mx-auto px-6">
+      <h2 data-aos="fade-up" class="title-font text-5xl font-black text-center neon-cyan mb-12">Apply for Guild Versus</h2>
+      <form id="versusForm" class="glass rounded-3xl p-10 space-y-6">
+        <input type="text" placeholder="Guild Name" required class="w-full p-5 bg-black/40 border border-cyan-800 rounded-xl">
+        <input type="date" placeholder="Preferred Date" class="w-full p-5 bg-black/40 border border-cyan-800 rounded-xl">
+        <select class="w-full p-5 bg-black/40 border border-cyan-800 rounded-xl">
+          <option>Format</option>
+          <option>1v1</option>
+          <option>Scrim</option>
+          <option>Tournament</option>
+        </select>
+        <textarea placeholder="Message" rows="4" class="w-full p-5 bg-black/40 border border-cyan-800 rounded-xl"></textarea>
+        <button type="submit" class="w-full py-6 bg-gradient-to-r from-purple-600 to-cyan-600 rounded-2xl text-xl font-bold">Send Challenge</button>
+      </form>
+    </div>
+  </section>
 
-                function playSong2() {
-                    song2.currentTime = 0;
-                    song2.volume = 0.5;
-                    song2.play().catch(err => console.error("Song2 play error:", err));
-                }
+  <!-- FOOTER -->
+  <footer class="bg-black border-t border-cyan-900/30 py-16">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <div class="flex justify-center gap-10 text-4xl mb-8">
+        <a href="#" class="hover:text-cyan-400">Discord</a>
+        <a href="#" class="hover:text-purple-400">Instagram</a>
+        <a href="#" class="hover:text-cyan-400">YouTube</a>
+      </div>
+      <p>© 2026 Hami Nepal Esports • All rights reserved</p>
+    </div>
+  </footer>
 
-                // When song2 ends → play song1 again (loop forever)
-                song2.addEventListener('ended', () => {
-                    song1.currentTime = 0;
-                    song1.play().catch(err => console.error("Song1 loop error:", err));
-                });
+  <!-- LOGIN MODAL -->
+  <div id="authModal" class="fixed inset-0 bg-black/80 z-[999] hidden flex items-center justify-center">
+    <div class="glass max-w-md w-full mx-6 rounded-3xl p-10">
+      <h2 class="text-4xl title-font text-center mb-8 neon-cyan">Login / Register</h2>
+      <div class="space-y-6">
+        <input id="email" type="email" placeholder="Email" class="w-full p-5 bg-black/40 border border-cyan-800 rounded-xl">
+        <input id="password" type="password" placeholder="Password" class="w-full p-5 bg-black/40 border border-cyan-800 rounded-xl">
+        <button id="submitAuth" class="w-full py-5 bg-cyan-600 rounded-xl font-bold text-lg">Login</button>
+        <button class="w-full py-5 border border-purple-500 rounded-xl font-bold">Continue with Discord</button>
+        <p class="text-center text-sm mt-4">
+          <span id="toggleAuth" class="text-cyan-400 cursor-pointer">Don't have an account? Register</span>
+        </p>
+      </div>
+    </div>
+  </div>
 
-            }, 1200);
-        });
+  <!-- ADMIN DASHBOARD MODAL (simple) -->
+  <div id="adminDashboard" class="fixed inset-0 bg-black/90 z-[999] hidden flex items-center justify-center p-6 overflow-auto">
+    <div class="glass max-w-6xl w-full rounded-3xl p-10">
+      <div class="flex justify-between items-center mb-10">
+        <h2 class="title-font text-4xl neon-purple">Admin Dashboard</h2>
+        <button id="closeAdmin" class="text-4xl">&times;</button>
+      </div>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="glass p-8 rounded-2xl">
+          <h3 class="text-2xl mb-6">Recent Guild Trials</h3>
+          <p class="text-gray-400">(Applications table placeholder)</p>
+        </div>
+        <div class="glass p-8 rounded-2xl">
+          <h3 class="text-2xl mb-6">Guild Versus Challenges</h3>
+          <p class="text-gray-400">(Challenges list placeholder)</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        // Particles: Hearts & Thunder
-        function createParticle(type) {
-            const p = document.createElement('div');
-            p.className = 'particle ' + type;
-            p.innerHTML = type === 'heart' ? '❤️' : '⚡';
-            p.style.left = Math.random() * 100 + 'vw';
-            p.style.animationDuration = (Math.random() * 5 + 5) + 's';
-            p.style.opacity = Math.random() * 0.6 + 0.4;
-            document.body.appendChild(p);
-            setTimeout(() => p.remove(), 15000);
-        }
-        setInterval(() => createParticle('heart'), 500);
-        setInterval(() => createParticle('thunder'), 700);
-    </script>
-</body>
-</html>
+  <script>
+    AOS.init({ duration: 1000, once: true });
+
+    // Fake auth state
+    let isLoggedIn = false;
+    let isAdmin = false;
+    let currentUser = null;
+
+    const loginBtn = document.getElementById('loginBtn');
+    const adminBtn = document.getElementById('adminBtn');
+    const authModal = document.getElementById('authModal');
+    const submitAuth = document.getElementById('submitAuth');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const toggleAuth = document.getElementById('toggleAuth');
+    let isRegisterMode = false;
+
+    function updateUI() {
+      document.body.classList.toggle('logged-in', isLoggedIn);
+      document.getElementById('userMenu').classList.toggle('hidden', !isLoggedIn);
+      if (isLoggedIn) {
+        document.getElementById('usernameDisplay').textContent = currentUser || 'User';
+      }
+    }
+
+    function showModal(modal) {
+      modal.classList.remove('hidden');
+    }
+
+    function hideModal(modal) {
+      modal.classList.add('hidden');
+    }
+
+    loginBtn.addEventListener('click', () => showModal(authModal));
+    document.getElementById('loginFromProtected')?.addEventListener('click', () => showModal(authModal));
+
+    submitAuth.addEventListener('click', () => {
+      const email = emailInput.value.trim();
+      const pass = passwordInput.value.trim();
+
+      if (!email || !pass) {
+        alert('Please fill email & password');
+        return;
+      }
+
+      if (email === 'admin@hami.com' && pass === 'admin2026') {
+        isLoggedIn = true;
+        isAdmin = true;
+        currentUser = 'Admin';
+        alert('Admin login successful');
+      } else if (email && pass.length >= 6) {
+        isLoggedIn = true;
+        isAdmin = false;
