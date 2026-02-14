@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HAMI NEPAL ESPORTS • Official</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .title-font { font-family: 'Space Grotesk', sans-serif; }
+    .neon-text { text-shadow: 0 0 20px #ff00aa, 0 0 40px #ff00aa; }
+    .hero-bg { background: linear-gradient(rgba(0,0,0,0.88), rgba(0,0,0,0.88)), url('https://images.unsplash.com/photo-1616588589676-62b3bd4ff6d2?ixlib=rb-4.0.3&auto=format&fit=crop&q=80') center/cover no-repeat fixed; }
+  </style>
+</head>
+<body class="bg-black text-white min-h-screen">
+
+  <!-- NAVBAR -->
+  <nav id="mainNav" class="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-lg border-b border-white/10 transition-all">
+    <div class="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-gradient-to-br from-pink-600 to-purple-700 rounded-xl flex items-center justify-center text-2xl font-black">HN</div>
+        <div>
+          <h1 class="title-font text-3xl tracking-tighter font-bold">HAMI</h1>
+          <p class="text-[10px] text-pink-400 -mt-1 tracking-[4px] uppercase">NEPAL ESPORTS</p>
+        </div>
+      </div>
+      <div id="navLinks" class="hidden md:flex items-center gap-10 text-sm font-medium">
+        <a href="#home" class="hover:text-pink-400 transition-colors">Home</a>
+        <a href="#tournaments" class="hover:text-pink-400 transition-colors">Tournaments</a>
+        <a href="#guild-test" class="hover:text-pink-400 transition-colors">Guild Test Reg</a>
+        <a href="#match-records" class="hover:text-pink-400 transition-colors">Match Records</a>
+        <a href="#highlights" class="hover:text-pink-400 transition-colors">Highlights</a>
+        <a href="#officer-contacts" class="hover:text-pink-400 transition-colors">Officers</a>
+        <a href="#merchandise" class="hover:text-pink-400 transition-colors">Merch</a>
+        <a href="#guild-versus" class="hover:text-pink-400 transition-colors">Guild vs Guild</a>
+      </div>
+      <div id="authButtons" class="flex items-center gap-4">
+        <button onclick="showLoginModal()" class="px-7 py-2.5 text-sm font-semibold border border-white/40 rounded-2xl hover:bg-white/5 transition">
+          Log In
+        </button>
+        <button onclick="showRegisterModal()" class="px-7 py-2.5 text-sm font-semibold bg-gradient-to-r from-pink-600 to-purple-700 rounded-2xl hover:brightness-110 transition">
+          Join Hami
+        </button>
+      </div>
+      <div id="userArea" class="hidden flex items-center gap-6">
+        <span id="usernameDisplay" class="text-pink-400 font-medium"></span>
+        <button onclick="handleLogout()" class="px-6 py-2.5 text-sm font-semibold bg-red-900/40 hover:bg-red-900/60 rounded-2xl transition">
+          Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- LOCKED SCREEN -->
+  <div id="lockedScreen" class="fixed inset-0 bg-black/95 z-40 flex items-center justify-center text-center px-6">
+    <div>
+      <div class="w-24 h-24 mx-auto mb-8 bg-gradient-to-br from-pink-600 to-purple-700 rounded-3xl flex items-center justify-center text-5xl font-black shadow-2xl">HN</div>
+      <h1 class="text-5xl md:text-7xl font-black title-font neon-text mb-6">HAMI NEPAL ESPORTS</h1>
+      <p class="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto">Nepal's leading Free Fire esports community.<br>Log in or register to access full features.</p>
+      <div class="flex justify-center gap-6">
+        <button onclick="showLoginModal()" class="px-12 py-5 bg-gradient-to-r from-pink-600 to-purple-700 font-bold text-lg rounded-3xl hover:brightness-110 transition">
+          Log In
+        </button>
+        <button onclick="showRegisterModal()" class="px-12 py-5 border-2 border-pink-600 text-pink-400 font-bold text-lg rounded-3xl hover:bg-pink-900/30 transition">
+          Register
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <main id="mainContent" class="hidden pt-24">
+    <section id="home" class="hero-bg min-h-screen flex items-center">
+      <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+        <div>
+          <div class="inline-flex items-center gap-3 bg-white/5 backdrop-blur px-5 py-2 rounded-full text-sm mb-8">
+            <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+            OFFICIAL FREE FIRE ESPORTS NEPAL
+          </div>
+          <h1 class="title-font text-7xl md:text-9xl leading-none font-black tracking-tighter neon-text">
+            HAMI<br>NEPAL
+          </h1>
+          <p class="mt-8 text-xl md:text-2xl text-gray-300 max-w-xl">Nepal's premier Free Fire esports organization. Building champions since 2022.</p>
+          <div class="mt-12 flex flex-wrap gap-5">
+            <a href="#tournaments" class="px-12 py-5 bg-white text-black font-bold rounded-3xl text-lg flex items-center gap-3 hover:scale-105 transition">
+              <i class="fa-solid fa-rocket"></i> VIEW EVENTS
+            </a>
+          </div>
+        </div>
+        <div class="relative hidden md:block">
+          <img src="https://i.imgur.com/8Y9kL2P.png" alt="Hami Nepal Squad" class="w-full rounded-3xl shadow-2xl border border-white/10">
+        </div>
+      </div>
+    </section>
+
+    <section id="tournaments" class="py-32 bg-zinc-950">
+      <div class="max-w-7xl mx-auto px-6">
+        <h2 class="text-6xl font-black title-font text-center mb-20 neon-text">UPCOMING EVENTS</h2>
+        <div id="clientEventsList" class="grid md:grid-cols-2 gap-8"></div>
+      </div>
+    </section>
+
+    <!-- Guild Test Registration -->
+    <section id="guild-test" class="py-20 bg-zinc-950">
+      <div class="max-w-4xl mx-auto px-6">
+        <h2 class="text-5xl font-black title-font text-center mb-12 neon-text">Guild Test Registration</h2>
+        <div class="bg-zinc-900 p-10 rounded-3xl">
+          <form id="guildTestForm" class="space-y-6">
+            <input type="text" id="gtName" placeholder="Full Name" required class="w-full bg-zinc-800 p-5 rounded-xl">
+            <input type="text" id="gtIGN" placeholder="Free Fire IGN / Player ID" required class="w-full bg-zinc-800 p-5 rounded-xl">
+            <input type="email" id="gtEmail" placeholder="Email Address" required class="w-full bg-zinc-800 p-5 rounded-xl">
+            <input type="tel" id="gtPhone" placeholder="Phone (+977...)" class="w-full bg-zinc-800 p-5 rounded-xl">
+            <button type="submit" class="w-full py-5 bg-green-600 hover:bg-green-700 font-bold rounded-xl">Submit Registration</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Guild vs Guild -->
+    <section id="guild-versus" class="py-20 bg-black">
+      <div class="max-w-4xl mx-auto px-6">
+        <h2 class="text-5xl font-black title-font text-center mb-12 neon-text">Apply for Guild vs Guild</h2>
+        <div class="bg-zinc-900 p-10 rounded-3xl">
+          <form id="gvgForm" class="space-y-6">
+            <input type="text" id="gvgGuildName" placeholder="Your Guild Name" required class="w-full bg-zinc-800 p-5 rounded-xl">
+            <input type="text" id="gvgLeader" placeholder="Guild Leader Name" required class="w-full bg-zinc-800 p-5 rounded-xl">
+            <input type="tel" id="gvgPhone" placeholder="Contact Phone" required class="w-full bg-zinc-800 p-5 rounded-xl">
+            <textarea id="gvgDetails" placeholder="Challenge / Message" rows="5" class="w-full bg-zinc-800 p-5 rounded-xl"></textarea>
+            <button type="submit" class="w-full py-5 bg-purple-600 hover:bg-purple-700 font-bold rounded-xl">Submit Application</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Officer Contacts -->
+    <section id="officer-contacts" class="py-20 bg-black">
+      <div class="max-w-4xl mx-auto px-6">
+        <h2 class="text-5xl font-black title-font text-center mb-12 neon-text">Officer Contacts</h2>
+        <div id="clientOfficersList" class="space-y-8"></div>
+      </div>
+    </section>
+
+    <!-- Match Records -->
+    <section id="match-records" class="py-20 bg-black">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-5xl font-black title-font text-center mb-12 neon-text">Match Records</h2>
+        <div id="clientMatchList" class="space-y-8"></div>
+      </div>
+    </section>
+
+    <!-- Highlights -->
+    <section id="highlights" class="py-20 bg-zinc-950">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-5xl font-black title-font text-center mb-12 neon-text">Highlights</h2>
+        <div id="clientHighlightsList" class="grid md:grid-cols-2 gap-8"></div>
+      </div>
+    </section>
+
+    <!-- Merchandise -->
+    <section id="merchandise" class="py-20 bg-zinc-950">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-5xl font-black title-font text-center mb-12 neon-text">Merchandise</h2>
+        <div id="clientMerchList" class="grid md:grid-cols-3 gap-8"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- LOGIN MODAL -->
+  <div id="loginModal" class="fixed inset-0 bg-black/95 hidden flex items-center justify-center z-50">
+    <div class="bg-zinc-900 rounded-3xl p-12 w-full max-w-md border border-white/10">
+      <h2 class="text-4xl font-bold mb-10 text-center">Member Login</h2>
+      <div id="loginError" class="hidden text-red-500 text-center mb-4 font-medium"></div>
+      <input id="loginEmail" type="text" placeholder="Username or Email" class="w-full bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5 mb-5 focus:outline-none focus:border-pink-600">
+      <input id="loginPass" type="password" placeholder="Password" class="w-full bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5 mb-8 focus:outline-none focus:border-pink-600">
+      <button type="button" onclick="handleLogin()" class="w-full py-5 bg-gradient-to-r from-pink-600 to-purple-700 font-bold text-lg rounded-2xl hover:brightness-110 transition">LOG IN</button>
+      <p class="text-center text-sm text-gray-500 mt-8">Don't have an account? <span onclick="showRegisterModal(); hideLoginModal()" class="text-pink-400 cursor-pointer hover:underline">Register</span></p>
+      <button onclick="hideLoginModal()" class="absolute top-8 right-8 text-gray-400 hover:text-white text-2xl">×</button>
+    </div>
+  </div>
+
+  <!-- REGISTER MODAL -->
+  <div id="registerModal" class="fixed inset-0 bg-black/95 hidden flex items-center justify-center z-50">
+    <div class="bg-zinc-900 rounded-3xl p-12 w-full max-w-md border border-white/10">
+      <h2 class="text-4xl font-bold mb-10 text-center">Join Hami Nepal</h2>
+      <div id="regError" class="hidden text-red-500 text-center mb-4 font-medium"></div>
+      <input id="regName" type="text" placeholder="Full Name" class="w-full bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5 mb-5 focus:outline-none focus:border-pink-600">
+      <input id="regIGN" type="text" placeholder="Free Fire IGN / Player ID" class="w-full bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5 mb-5 focus:outline-none focus:border-pink-600">
+      <input id="regEmail" type="email" placeholder="Email Address" class="w-full bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5 mb-5 focus:outline-none focus:border-pink-600">
+      <input id="regPass" type="password" placeholder="Create Password (min 6 chars)" class="w-full bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5 mb-8 focus:outline-none focus:border-pink-600">
+      <button type="button" onclick="handleRegister()" class="w-full py-5 bg-gradient-to-r from-pink-600 to-purple-700 font-bold text-lg rounded-2xl hover:brightness-110 transition">CREATE ACCOUNT</button>
+      <button onclick="hideRegisterModal()" class="absolute top-8 right-8 text-gray-400 hover:text-white text-2xl">×</button>
+    </div>
+  </div>
+
+  <!-- PROFESSIONAL ORDER MODAL -->
+  <div id="orderModal" class="fixed inset-0 bg-black/80 hidden flex items-center justify-center z-50 backdrop-blur-sm">
+    <div class="bg-zinc-900 rounded-3xl p-10 w-full max-w-lg border border-pink-600/30 shadow-2xl relative">
+      <button onclick="closeOrderModal()" class="absolute top-4 right-6 text-gray-400 hover:text-white text-3xl">×</button>
+      
+      <h2 class="text-3xl font-bold text-center mb-8 neon-text">Place Your Order</h2>
+      
+      <div class="mb-6 p-4 bg-zinc-800 rounded-2xl">
+        <p class="text-lg font-semibold text-pink-400" id="orderProductName"></p>
+        <p class="text-xl mt-2">Price: <span id="orderPrice" class="text-green-400"></span></p>
+        <p class="text-lg mt-1">Total: <span id="orderTotal" class="text-2xl font-bold text-yellow-400"></span></p>
+      </div>
+
+      <form id="orderForm" class="space-y-6">
+        <input type="text" id="orderName" placeholder="Full Name" required class="w-full bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5 focus:outline-none focus:border-pink-600">
+        <input type="tel" id="orderPhone" placeholder="Phone Number (+977...)" required class="w-full bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5 focus:outline-none focus:border-pink-600">
+        <input type="email" id="orderEmail" placeholder="Email / Gmail" required class="w-full bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5 focus:outline-none focus:border-pink-600">
+        <textarea id="orderAddress" placeholder="Full Delivery Address" rows="3" required class="w-full bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5 focus:outline-none focus:border-pink-600"></textarea>
+        
+        <div class="flex items-center gap-4">
+          <label class="text-lg">Quantity:</label>
+          <input type="number" id="orderQty" value="1" min="1" class="w-24 bg-zinc-800 border border-white/20 rounded-xl px-4 py-3 text-center focus:outline-none focus:border-pink-600">
+        </div>
+
+        <button type="submit" class="w-full py-5 bg-gradient-to-r from-pink-600 to-purple-700 font-bold text-lg rounded-2xl hover:brightness-110 transition">
+          Confirm Order
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ADMIN DASHBOARD -->
+  <div id="adminDashboard" class="hidden fixed inset-0 bg-zinc-950 z-[100] overflow-hidden">
+    <div class="flex h-screen relative">
+      <aside class="w-80 bg-black border-r border-white/10 p-8 flex flex-col">
+        <div class="flex items-center gap-4 mb-16">
+          <div class="w-12 h-12 bg-gradient-to-br from-pink-600 to-purple-700 rounded-2xl flex items-center justify-center text-3xl font-black">HN</div>
+          <div>
+            <div class="font-bold text-3xl">HAMI</div>
+            <div class="text-pink-400 text-sm uppercase tracking-widest">Admin Panel</div>
+          </div>
+        </div>
+
+        <nav class="space-y-2 flex-1">
+          <div onclick="switchAdminTab(0)" class="admin-tab flex items-center gap-5 px-6 py-5 rounded-2xl cursor-pointer bg-pink-600/20 text-pink-400 font-medium">
+            <i class="fa-solid fa-gauge-high w-6"></i> Dashboard
+          </div>
+          <div onclick="switchAdminTab(1)" class="admin-tab flex items-center gap-5 px-6 py-5 rounded-2xl cursor-pointer hover:bg-white/5">
+            <i class="fa-solid fa-user-plus w-6"></i> Guild Test Registration
+          </div>
+          <div onclick="switchAdminTab(2)" class="admin-tab flex items-center gap-5 px-6 py-5 rounded-2xl cursor-pointer hover:bg-white/5">
+            <i class="fa-solid fa-trophy w-6"></i> Match Records
+          </div>
+          <div onclick="switchAdminTab(3)" class="admin-tab flex items-center gap-5 px-6 py-5 rounded-2xl cursor-pointer hover:bg-white/5">
+            <i class="fa-solid fa-video w-6"></i> Highlights
+          </div>
+          <div onclick="switchAdminTab(4)" class="admin-tab flex items-center gap-5 px-6 py-5 rounded-2xl cursor-pointer hover:bg-white/5">
+            <i class="fa-solid fa-id-card w-6"></i> Officer Contacts
+          </div>
+          <div onclick="switchAdminTab(5)" class="admin-tab flex items-center gap-5 px-6 py-5 rounded-2xl cursor-pointer hover:bg-white/5">
+            <i class="fa-solid fa-bag-shopping w-6"></i> Merchandise
+          </div>
+          <div onclick="switchAdminTab(6)" class="admin-tab flex items-center gap-5 px-6 py-5 rounded-2xl cursor-pointer hover:bg-white/5">
+            <i class="fa-solid fa-handshake w-6"></i> Guild vs Guild Apply
+          </div>
+        </nav>
+
+        <button onclick="handleLogout()" class="mt-auto w-full py-4 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-medium rounded-2xl flex items-center justify-center gap-3">
+          <i class="fa-solid fa-right-from-bracket"></i> LOG OUT
+        </button>
+      </aside>
+
+      <div class="flex-1 flex flex-col">
+        <div class="bg-zinc-900 border-b border-white/10 px-10 py-5 flex justify-end items-center">
+          <button onclick="handleLogout()" class="px-8 py-3 bg-red-700 hover:bg-red-800 text-white font-semibold rounded-xl flex items-center gap-3 transition shadow-md">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+          </button>
+        </div>
+        <main class="flex-1 p-10 overflow-auto" id="adminContent"></main>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ────────────────────────────────────────────────
+    // STATE
+    // ────────────────────────────────────────────────
+    let registeredUsers = JSON.parse(localStorage.getItem('registeredUsers')) || [];
+    let currentUser = null;
+    let isAdmin = false;
+
+    let guildTestRegistrations = JSON.parse(localStorage.getItem('guildTestRegistrations')) || [];
+    let guildVersusApplications = JSON.parse(localStorage.getItem('guildVersusApplications')) || [];
+    let officerContacts = JSON.parse(localStorage.getItem('officerContacts')) || [];
+    let matchRecords = JSON.parse(localStorage.getItem('matchRecords')) || [];
+    let highlights = JSON.parse(localStorage.getItem('highlights')) || [];
+    let merchandise = JSON.parse(localStorage.getItem('merchandise')) || [];
+    let events = JSON.parse(localStorage.getItem('events')) || [];
+
+    function saveAllData() {
+      localStorage.setItem('registeredUsers', JSON.stringify(registeredUsers));
+      localStorage.setItem('guildTestRegistrations', JSON.stringify(guildTestRegistrations));
+      localStorage.setItem('guildVersusApplications', JSON.stringify(guildVersusApplications));
+      localStorage.setItem('officerContacts', JSON.stringify(officerContacts));
+      localStorage.setItem('matchRecords', JSON.stringify(matchRecords));
+      localStorage.setItem('highlights', JSON.stringify(highlights));
+      localStorage.setItem('merchandise', JSON.stringify(merchandise));
+      localStorage.setItem('events', JSON.stringify(events));
+    }
+
+    // 90-day auto-login
+    window.addEventListener('load', () => {
+      const saved = JSON.parse(localStorage.getItem('currentUser'));
+      if (saved && Date.now() - saved.timestamp < 90 * 24 * 60 * 60 * 1000) {
+        currentUser = saved.user;
+        isAdmin = saved.isAdmin;
+        unlockSite();
+        if (isAdmin) {
+          document.getElementById('adminDashboard').classList.remove('hidden');
+          switchAdminTab(0);
+        }
+      }
+      renderAllClientPages();
+    });
+
+    function unlockSite() {
+      document.getElementById('lockedScreen').classList.add('hidden');
+      document.getElementById('mainContent').classList.remove('hidden');
+      document.getElementById('navLinks').classList.remove('hidden');
+      document.getElementById('authButtons').classList.add('hidden');
+      document.getElementById('userArea').classList.remove('hidden');
+      document.getElementById('usernameDisplay').textContent = currentUser ? currentUser.name : 'User';
+    }
+
+    function lockSite() {
+      document.getElementById('lockedScreen').classList.remove('hidden');
+      document.getElementById('mainContent').classList.add('hidden');
+      document.getElementById('navLinks').classList.add('hidden');
+      document.getElementById('authButtons').classList.remove('hidden');
+      document.getElementById('userArea').classList.add('hidden');
+      document.getElementById('adminDashboard').classList.add('hidden');
+    }
+
+    function showLoginModal() { document.getElementById('loginModal').classList.remove('hidden'); }
+    function hideLoginModal() { document.getElementById('loginModal').classList.add('hidden'); }
+    function showRegisterModal() { document.getElementById('registerModal').classList.remove('hidden'); }
+    function hideRegisterModal() { document.getElementById('registerModal').classList.add('hidden'); }
+
+    // Login / Register / Logout
+    function handleLogin(e) {
+      if (e) e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+      const pass = document.getElementById('loginPass').value.trim();
+      const errorEl = document.getElementById('loginError');
+
+      errorEl.classList.add('hidden');
+      errorEl.textContent = '';
+
+      if (email === "admin@haminepal.gg" && pass === "hamiadmin2026") {
+        isAdmin = true;
+        currentUser = { name: "Admin", email };
+        localStorage.setItem('currentUser', JSON.stringify({ user: currentUser, isAdmin: true, timestamp: Date.now() }));
+        hideLoginModal();
+        unlockSite();
+        document.getElementById('adminDashboard').classList.remove('hidden');
+        switchAdminTab(0);
+        return;
+      }
+
+      const user = registeredUsers.find(u => u.email.toLowerCase() === email && u.pass === pass);
+      if (user) {
+        currentUser = user;
+        isAdmin = false;
+        localStorage.setItem('currentUser', JSON.stringify({ user: currentUser, isAdmin: false, timestamp: Date.now() }));
+        hideLoginModal();
+        unlockSite();
+      } else {
+        errorEl.textContent = "Invalid credentials.";
+        errorEl.classList.remove('hidden');
+      }
+    }
+
+    function handleRegister(e) {
+      if (e) e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
+      const pass = document.getElementById('regPass').value.trim();
+      const errorEl = document.getElementById('regError');
+
+      errorEl.classList.add('hidden');
+      errorEl.textContent = '';
+
+      if (!name || !email || !pass || pass.length < 6) {
+        errorEl.textContent = "Fill all fields. Password min 6 chars.";
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      if (registeredUsers.some(u => u.email.toLowerCase() === email)) {
+        errorEl.textContent = "Email already taken.";
+        errorEl.classList.remove('hidden');
+        return;
+      }
+
+      registeredUsers.push({ email, pass, name });
+      saveAllData();
+      hideRegisterModal();
+      alert(`Registered! You can now log in with ${email}.`);
+    }
+
+    function handleLogout() {
+      if (confirm("Log out now?")) {
+        localStorage.removeItem('currentUser');
+        currentUser = null;
+        isAdmin = false;
+        lockSite();
+      }
+    }
+
+    // ────────────────────────────────────────────────
+    // ADMIN TAB SWITCHER
+    // ────────────────────────────────────────────────
+    function switchAdminTab(tab) {
+      if (!isAdmin) return;
+
+      document.querySelectorAll('.admin-tab').forEach((el, i) => {
+        el.classList.toggle('bg-pink-600/20', i === tab);
+        el.classList.toggle('text-pink-400', i === tab);
+      });
+
+      const content = document.getElementById('adminContent');
+
+      switch (tab) {
+        case 0:
+          content.innerHTML = `
+            <h1 class="text-5xl font-black mb-12">Admin Dashboard</h1>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <div class="bg-zinc-900 p-10 rounded-3xl border border-pink-600/30">
+                <div class="text-6xl font-black text-pink-500">${registeredUsers.length}</div>
+                <div class="mt-4 text-lg">Total Members</div>
+              </div>
+              <div class="bg-zinc-900 p-10 rounded-3xl border border-purple-600/30">
+                <div class="text-6xl font-black text-purple-500">${guildTestRegistrations.length}</div>
+                <div class="mt-4 text-lg">Guild Test Requests</div>
+              </div>
+              <div class="bg-zinc-900 p-10 rounded-3xl border border-green-600/30">
+                <div class="text-6xl font-black text-green-500">${guildVersusApplications.length}</div>
+                <div class="mt-4 text-lg">GvG Applications</div>
+              </div>
+              <div class="bg-zinc-900 p-10 rounded-3xl border border-yellow-600/30">
+                <div class="text-6xl font-black text-yellow-500">${merchandise.length}</div>
+                <div class="mt-4 text-lg">Merch Products</div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 1:
+          content.innerHTML = `<h1 class="text-5xl font-black mb-10">Guild Test Registration</h1><div id="guildTestAdminList" class="space-y-6"></div>`;
+          renderGuildTestAdmin();
+          break;
+
+        case 2:
+          content.innerHTML = `
+            <h1 class="text-5xl font-black mb-10">Match Records</h1>
+            <div class="bg-zinc-900 p-10 rounded-3xl mb-12">
+              <input id="matchDate" placeholder="Date" class="w-full bg-zinc-800 p-5 rounded-xl mb-4">
+              <input id="matchTeam1" placeholder="Team 1" class="w-full bg-zinc-800 p-5 rounded-xl mb-4">
+              <input id="matchTeam2" placeholder="Team 2" class="w-full bg-zinc-800 p-5 rounded-xl mb-4">
+              <input id="matchScore" placeholder="Score" class="w-full bg-zinc-800 p-5 rounded-xl mb-4">
+              <input id="matchWinner" placeholder="Winner" class="w-full bg-zinc-800 p-5 rounded-xl mb-6">
+              <input type="file" id="matchImage" accept="image/*" class="w-full bg-zinc-800 p-5 rounded-xl mb-6">
+              <button onclick="addMatchRecord()" class="px-10 py-4 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold">Add Match with Image</button>
+            </div>
+            <div id="matchAdminList" class="space-y-6"></div>
+          `;
+          renderMatchAdmin();
+          break;
+
+        case 3:
+          content.innerHTML = `
+            <h1 class="text-5xl font-black mb-10">Highlights</h1>
+            <div class="bg-zinc-900 p-10 rounded-3xl mb-12">
+              <input id="highlightTitle" placeholder="Title" class="w-full bg-zinc-800 p-5 rounded-xl mb-4">
+              <input id="highlightVideoUrl" placeholder="Video URL" class="w-full bg-zinc-800 p-5 rounded-xl mb-6">
+              <button onclick="addHighlight()" class="px-10 py-4 bg-purple-600 hover:bg-purple-700 rounded-xl font-bold">Add Highlight</button>
+            </div>
+            <div id="highlightsAdminList" class="grid md:grid-cols-2 gap-6"></div>
+          `;
+          renderHighlightsAdmin();
+          break;
+
+        case 4:
+          content.innerHTML = `
+            <h1 class="text-5xl font-black mb-12">Manage Officer Contacts</h1>
+            <div class="bg-zinc-900 p-10 rounded-3xl mb-12">
+              <h2 class="text-3xl font-bold mb-8">Add New Officer</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <input id="newOfficerName" placeholder="Full Name" class="bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5">
+                <input id="newOfficerRole" placeholder="Role" class="bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5">
+                <input id="newOfficerPhone" placeholder="Phone" class="bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5">
+                <input id="newOfficerEmail" placeholder="Email" class="bg-zinc-800 border border-white/20 rounded-2xl px-6 py-5">
+              </div>
+              <button onclick="addOfficer()" class="mt-8 px-12 py-5 bg-pink-600 hover:bg-pink-700 font-bold rounded-2xl">ADD OFFICER</button>
+            </div>
+            <h2 class="text-3xl font-bold mb-8">Current Officers</h2>
+            <div id="officersAdminList" class="space-y-6"></div>
+          `;
+          renderOfficersAdmin();
+          break;
+
+        case 5:
+          content.innerHTML = `
+            <h1 class="text-5xl font-black mb-10">Merchandise</h1>
+            <div class="bg-zinc-900 p-10 rounded-3xl mb-12">
+              <input id="merchName" placeholder="Product Name" class="w-full bg-zinc-800 p-5 rounded-xl mb-4">
+              <input id="merchPrice" placeholder="Price (NPR)" type="number" class="w-full bg-zinc-800 p-5 rounded-xl mb-4">
+              <input id="merchStock" placeholder="Stock" type="number" class="w-full bg-zinc-800 p-5 rounded-xl mb-6">
+              <button onclick="addMerch()" class="px-10 py-4 bg-indigo-600 hover:bg-indigo-700 rounded-xl font-bold">Add Product</button>
+            </div>
+            <div id="merchAdminList" class="grid md:grid-cols-2 gap-6"></div>
+          `;
+          renderMerchAdmin();
+          break;
+
+        case 6:
+          content.innerHTML = `
+            <h1 class="text-5xl font-black mb-10">Guild vs Guild Applications</h1>
+            <div id="gvgAdminList" class="space-y-6"></div>
+          `;
+          renderGVGAdmin();
+          break;
+
+        default:
+          content.innerHTML = `<h1 class="text-5xl font-black">Tab ${tab + 1} - Coming Soon</h1>`;
+      }
+    }
+
+    // ────────────────────────────────────────────────
+    // ADMIN ADD / DELETE FUNCTIONS
+    // ────────────────────────────────────────────────
+    function addOfficer() {
+      const name = document.getElementById('newOfficerName').value.trim();
+      const role = document.getElementById('newOfficerRole').value.trim();
+      const phone = document.getElementById('newOfficerPhone').value.trim() || 'N/A';
+      const email = document.getElementById('newOfficerEmail').value.trim() || 'N/A';
+
+      if (!name || !role) return alert("Name and Role required");
+
+      const newId = officerContacts.length ? Math.max(...officerContacts.map(c => c.id)) + 1 : 1;
+      officerContacts.push({ id: newId, name, role, phone, email });
+      saveAllData();
+      renderOfficersAdmin();
+      renderClientOfficers();
+      alert("Officer added!");
+    }
+
+    function addMatchRecord() {
+      const date = document.getElementById('matchDate').value;
+      const team1 = document.getElementById('matchTeam1').value;
+      const team2 = document.getElementById('matchTeam2').value;
+      const score = document.getElementById('matchScore').value;
+      const winner = document.getElementById('matchWinner').value;
+      const file = document.getElementById('matchImage').files[0];
+
+      if (!date || !team1 || !team2) return alert("Fill required fields");
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        matchRecords.push({ id: Date.now(), date, team1, team2, score, winner, image: e.target.result });
+        saveAllData();
+        renderMatchAdmin();
+        renderClientMatches();
+        alert("Match added with image!");
+      };
+      if (file) reader.readAsDataURL(file);
+      else {
+        matchRecords.push({ id: Date.now(), date, team1, team2, score, winner, image: null });
+        saveAllData();
+        renderMatchAdmin();
+        renderClientMatches();
+        alert("Match added!");
+      }
+    }
+
+    function addHighlight() {
+      const title = document.getElementById('highlightTitle').value.trim();
+      const url = document.getElementById('highlightVideoUrl').value.trim();
+      if (!title || !url) return alert("Title and URL required");
+
+      highlights.push({ id: Date.now(), title, url });
+      saveAllData();
+      renderHighlightsAdmin();
+      renderClientHighlights();
+      alert("Highlight added!");
+    }
+
+    function addMerch() {
+      const name = document.getElementById('merchName').value.trim();
+      const price = document.getElementById('merchPrice').value;
+      const stock = document.getElementById('merchStock').value;
+      if (!name || !price) return alert("Name and Price required");
+
+      merchandise.push({ id: Date.now(), name, price, stock });
+      saveAllData();
+      renderMerchAdmin();
+      renderClientMerch();
+      alert("Merchandise added!");
+    }
+
+    // Delete functions
+    function deleteItem(key, id) {
+      if (!confirm("Delete this item?")) return;
+      window[key] = window[key].filter(i => i.id !== id);
+      saveAllData();
+      if (key === 'guildTestRegistrations') renderGuildTestAdmin();
+      if (key === 'guildVersusApplications') renderGVGAdmin();
+    }
+
+    function deleteOfficer(id) {
+      if (!confirm("Remove officer?")) return;
+      officerContacts = officerContacts.filter(c => c.id !== id);
+      saveAllData();
+      renderOfficersAdmin();
+      renderClientOfficers();
+    }
+
+    function deleteMatch(id) {
+      if (!confirm("Delete match?")) return;
+      matchRecords = matchRecords.filter(m => m.id !== id);
+      saveAllData();
+      renderMatchAdmin();
+      renderClientMatches();
+    }
+
+    function deleteMerch(id) {
+      if (!confirm("Delete product?")) return;
+      merchandise = merchandise.filter(m => m.id !== id);
+      saveAllData();
+      renderMerchAdmin();
+      renderClientMerch();
+    }
+
+    // ────────────────────────────────────────────────
+    // RENDER FUNCTIONS
+    // ────────────────────────────────────────────────
+    function renderGuildTestAdmin() {
+      const list = document.getElementById('guildTestAdminList');
+      if (!list) return;
+      list.innerHTML = guildTestRegistrations.length === 0 ? '<p class="text-gray-400">No submissions yet</p>' : '';
+      guildTestRegistrations.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-zinc-800 p-6 rounded-2xl flex justify-between items-center';
+        div.innerHTML = `
+          <div>
+            <div class="font-bold">${item.name}</div>
+            <div class="text-sm text-gray-400">${item.ign} • ${item.email}</div>
+            <div class="text-sm ${item.status === 'pending' ? 'text-yellow-400' : 'text-green-400'}">${item.status}</div>
+          </div>
+          <div>
+            ${item.status === 'pending' ? `
+              <button onclick="updateStatus('guildTestRegistrations', ${item.id}, 'approved')" class="bg-green-600 px-5 py-2 rounded-lg mr-2">Approve</button>
+              <button onclick="updateStatus('guildTestRegistrations', ${item.id}, 'rejected')" class="bg-red-600 px-5 py-2 rounded-lg">Reject</button>
+            ` : ''}
+            <button onclick="deleteItem('guildTestRegistrations', ${item.id})" class="bg-gray-700 px-5 py-2 rounded-lg">Delete</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function renderGVGAdmin() {
+      const list = document.getElementById('gvgAdminList');
+      if (!list) return;
+      list.innerHTML = guildVersusApplications.length === 0 ? '<p class="text-gray-400">No applications yet</p>' : '';
+      guildVersusApplications.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-zinc-800 p-8 rounded-3xl flex justify-between items-center';
+        div.innerHTML = `
+          <div>
+            <div class="text-2xl font-bold">${item.guildName}</div>
+            <div class="text-pink-400">Leader: ${item.leader}</div>
+            <div class="text-sm mt-2">Phone: ${item.phone}</div>
+            <div class="text-sm ${item.status === 'pending' ? 'text-yellow-400' : 'text-green-400'}">${item.status}</div>
+          </div>
+          <div>
+            ${item.status === 'pending' ? `
+              <button onclick="updateStatus('guildVersusApplications', ${item.id}, 'approved')" class="bg-green-600 px-6 py-3 rounded-xl mr-2">Approve</button>
+              <button onclick="updateStatus('guildVersusApplications', ${item.id}, 'rejected')" class="bg-red-600 px-6 py-3 rounded-xl">Reject</button>
+            ` : ''}
+            <button onclick="deleteItem('guildVersusApplications', ${item.id})" class="bg-gray-700 px-6 py-3 rounded-xl ml-2">Delete</button>
+          </div>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function renderOfficersAdmin() {
+      const list = document.getElementById('officersAdminList');
+      if (!list) return;
+      list.innerHTML = officerContacts.length === 0 ? '<p class="text-gray-400">No officers yet</p>' : '';
+      officerContacts.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-zinc-800 p-8 rounded-3xl flex justify-between items-center';
+        div.innerHTML = `
+          <div>
+            <div class="text-2xl font-bold">${item.name}</div>
+            <div class="text-pink-400">${item.role}</div>
+            <div class="text-sm mt-2">${item.phone} • ${item.email}</div>
+          </div>
+          <button onclick="deleteOfficer(${item.id})" class="bg-red-600 px-8 py-4 rounded-2xl">Remove</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function renderMatchAdmin() {
+      const list = document.getElementById('matchAdminList');
+      if (!list) return;
+      list.innerHTML = matchRecords.length === 0 ? '<p class="text-gray-400">No records yet</p>' : '';
+      matchRecords.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-zinc-800 p-6 rounded-2xl flex justify-between items-center';
+        div.innerHTML = `
+          <div>
+            <div class="font-bold">${item.date}</div>
+            <div>${item.team1} vs ${item.team2} - ${item.score} (Winner: ${item.winner})</div>
+            ${item.image ? `<img src="${item.image}" class="mt-4 max-h-48 rounded">` : ''}
+          </div>
+          <button onclick="deleteMatch(${item.id})" class="bg-red-600 px-6 py-3 rounded-xl">Delete</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function renderMerchAdmin() {
+      const list = document.getElementById('merchAdminList');
+      if (!list) return;
+      list.innerHTML = merchandise.length === 0 ? '<p class="text-gray-400">No products yet</p>' : '';
+      merchandise.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-zinc-800 p-6 rounded-2xl flex justify-between items-center';
+        div.innerHTML = `
+          <div>
+            <div class="font-bold">${item.name}</div>
+            <div>Rs. ${item.price} • Stock: ${item.stock}</div>
+          </div>
+          <button onclick="deleteMerch(${item.id})" class="bg-red-600 px-6 py-3 rounded-xl">Delete</button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    // Client renders
+    function renderClientOfficers() {
+      const list = document.getElementById('clientOfficersList');
+      if (!list) return;
+      list.innerHTML = officerContacts.length === 0 ? '<p class="text-gray-400">No officers yet</p>' : '';
+      officerContacts.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-zinc-900 p-8 rounded-3xl';
+        div.innerHTML = `
+          <h3 class="text-2xl font-bold text-pink-400">${item.name}</h3>
+          <p>${item.role}</p>
+          <p class="mt-2">${item.phone} • ${item.email}</p>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function renderClientMatches() {
+      const list = document.getElementById('clientMatchList');
+      if (!list) return;
+      list.innerHTML = matchRecords.length === 0 ? '<p class="text-gray-400">No matches yet</p>' : '';
+      matchRecords.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-zinc-900 p-6 rounded-2xl';
+        div.innerHTML = `
+          <div class="font-bold">${item.date}</div>
+          <div>${item.team1} vs ${item.team2} - ${item.score} (Winner: ${item.winner})</div>
+          ${item.image ? `<img src="${item.image}" class="mt-4 max-h-48 rounded">` : ''}
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function renderClientHighlights() {
+      const list = document.getElementById('clientHighlightsList');
+      if (!list) return;
+      list.innerHTML = highlights.length === 0 ? '<p class="text-gray-400">No highlights yet</p>' : '';
+      highlights.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-zinc-900 p-6 rounded-3xl';
+        div.innerHTML = `
+          <div class="font-bold">${item.title}</div>
+          <iframe width="100%" height="200" src="${item.url.replace('watch?v=', 'embed/')}" frameborder="0" allowfullscreen></iframe>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function renderClientMerch() {
+      const list = document.getElementById('clientMerchList');
+      if (!list) return;
+      list.innerHTML = '';
+      merchandise.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-zinc-900 p-8 rounded-3xl text-center border border-zinc-700 hover:border-pink-600/50 transition-all';
+        div.innerHTML = `
+          <h3 class="text-2xl font-bold mb-3">${item.name}</h3>
+          <p class="text-4xl text-pink-400 mb-4 font-black">Rs. ${item.price}</p>
+          <p class="text-gray-400 mb-6">Stock: ${item.stock}</p>
+          <button onclick="openOrderModal('${item.name}', ${item.price})" class="px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 rounded-xl font-bold text-lg transition-all">
+            Place Order
+          </button>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    // ────────────────────────────────────────────────
+    // PROFESSIONAL ORDER MODAL LOGIC
+    // ────────────────────────────────────────────────
+    let currentProductName = '';
+    let currentProductPrice = 0;
+
+    function openOrderModal(name, price) {
+      currentProductName = name;
+      currentProductPrice = price;
+
+      document.getElementById('orderProductName').textContent = name;
+      document.getElementById('orderPrice').textContent = `Rs. ${price}`;
+      updateOrderTotal();
+
+      document.getElementById('orderModal').classList.remove('hidden');
+    }
+
+    function closeOrderModal() {
+      document.getElementById('orderModal').classList.add('hidden');
+      document.getElementById('orderForm').reset();
+    }
+
+    function updateOrderTotal() {
+      const qty = parseInt(document.getElementById('orderQty').value) || 1;
+      const total = currentProductPrice * qty;
+      document.getElementById('orderTotal').textContent = `Rs. ${total}`;
+    }
+
+    // Quantity change listener
+    document.getElementById('orderQty')?.addEventListener('input', updateOrderTotal);
+
+    // Order form submission
+    document.getElementById('orderForm')?.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const name = document.getElementById('orderName').value.trim();
+      const phone = document.getElementById('orderPhone').value.trim();
+      const email = document.getElementById('orderEmail').value.trim();
+      const address = document.getElementById('orderAddress').value.trim();
+      const qty = parseInt(document.getElementById('orderQty').value) || 1;
+
+      if (!name || !phone || !email || !address) {
+        alert("Please fill all required fields.");
+        return;
+      }
+
+      const total = currentProductPrice * qty;
+
+      alert(`🎉 Order Confirmed Successfully!\n\n` +
+            `Product: ${currentProductName}\n` +
+            `Quantity: ${qty}\n` +
+            `Total Amount: Rs. ${total}\n\n` +
+            `Customer Details:\n` +
+            `Name: ${name}\n` +
+            `Phone: ${phone}\n` +
+            `Email: ${email}\n` +
+            `Delivery Address: ${address}\n\n` +
+            `Thank you for shopping with Hami Nepal Esports!\nWe will contact you soon for confirmation.`);
+
+      closeOrderModal();
+    });
+
+    function renderClientEvents() {
+      const list = document.getElementById('clientEventsList');
+      if (!list) return;
+      list.innerHTML = events.length === 0 ? '<p class="text-gray-400">No events yet</p>' : '';
+      events.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'bg-zinc-900 p-6 rounded-2xl';
+        div.innerHTML = `
+          <div class="font-bold">${item.title}</div>
+          <div class="text-sm text-gray-400">${item.date}</div>
+          <p>${item.desc}</p>
+          ${item.image ? `<img src="${item.image}" class="mt-4 max-h-48 rounded">` : ''}
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function renderAllClientPages() {
+      renderClientOfficers();
+      renderClientMatches();
+      renderClientHighlights();
+      renderClientMerch();
+      renderClientEvents();
+    }
+
+    // Update / Delete
+    function updateStatus(key, id, status) {
+      const arr = window[key];
+      const item = arr.find(i => i.id === id);
+      if (item) item.status = status;
+      saveAllData();
+      if (key === 'guildTestRegistrations') renderGuildTestAdmin();
+      if (key === 'guildVersusApplications') renderGVGAdmin();
+    }
+
+    function deleteItem(key, id) {
+      if (!confirm("Delete this item?")) return;
+      window[key] = window[key].filter(i => i.id !== id);
+      saveAllData();
+      if (key === 'guildTestRegistrations') renderGuildTestAdmin();
+      if (key === 'guildVersusApplications') renderGVGAdmin();
+    }
+
+    function deleteOfficer(id) {
+      if (!confirm("Remove officer?")) return;
+      officerContacts = officerContacts.filter(c => c.id !== id);
+      saveAllData();
+      renderOfficersAdmin();
+      renderClientOfficers();
+    }
+
+    function deleteMatch(id) {
+      if (!confirm("Delete match?")) return;
+      matchRecords = matchRecords.filter(m => m.id !== id);
+      saveAllData();
+      renderMatchAdmin();
+      renderClientMatches();
+    }
+
+    function deleteMerch(id) {
+      if (!confirm("Delete product?")) return;
+      merchandise = merchandise.filter(m => m.id !== id);
+      saveAllData();
+      renderMerchAdmin();
+      renderClientMerch();
+    }
+
+    // Client forms
+    document.getElementById('guildTestForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('gtName').value.trim();
+      const ign = document.getElementById('gtIGN').value.trim();
+      const email = document.getElementById('gtEmail').value.trim();
+      const phone = document.getElementById('gtPhone').value.trim() || 'N/A';
+
+      if (!name || !ign || !email) return alert("Please fill required fields");
+
+      guildTestRegistrations.push({
+        id: Date.now(),
+        name, ign, email, phone,
+        status: 'pending',
+        submitted: new Date().toLocaleString()
+      });
+
+      saveAllData();
+      alert("Guild Test Registration submitted successfully!");
+      e.target.reset();
+    });
+
+    document.getElementById('gvgForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const guildName = document.getElementById('gvgGuildName').value.trim();
+      const leader = document.getElementById('gvgLeader').value.trim();
+      const phone = document.getElementById('gvgPhone').value.trim();
+      const details = document.getElementById('gvgDetails').value.trim() || 'No details';
+
+      if (!guildName || !leader || !phone) return alert("Please fill required fields");
+
+      guildVersusApplications.push({
+        id: Date.now(),
+        guildName, leader, phone, details,
+        status: 'pending',
+        submitted: new Date().toLocaleString()
+      });
+
+      saveAllData();
+      alert("Guild vs Guild application submitted successfully!");
+      e.target.reset();
+    });
+
+    // Start locked
+    lockSite();
+  </script>
+</body>
+</html>
